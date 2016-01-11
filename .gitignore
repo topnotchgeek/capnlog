@@ -63,3 +63,4 @@ conf/local*
 *.pydevproject
 .idea
 db.sqlite3
+public
