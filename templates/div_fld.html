@@ -1,0 +1,20 @@
+{% if fld %}
+    <div class="row">
+        <div id="div_{{ fld.name }}" class="{{ col_class|default:"col-sm-4" }} form-group {% if fld.errors %} has-error{% endif %}">
+            <p>
+                {% if fld.label %}{{ fld.label_tag }}{% endif %}
+            {{ fld }}</p>
+    {% if fld.help_text %}
+            <div class="alert-warning text-center">{{ fld.help_text }}</div>
+    {% endif %}
+    {% if fld.errors %}
+            <div class="alert-danger text-center">
+        {% for err in fld.errors %}
+            {% if forloop.counter0 > 0 %}<br/>{% endif %}
+            {{ err }}
+        {% endfor %}
+            </div>
+    {% endif %}
+        </div>
+    </div>
+{% endif %}

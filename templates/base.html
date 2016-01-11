@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <title>{% block page_title %}{{ page_title }}{% endblock page_title %}</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    {% if auto_refresh %}
+        <meta http-equiv="refresh" content="{{ auto_refresh_secs|default:"15" }}"/>
+    {% endif %}
+
+{% block bootstrap_css %}
+    	<!-- Latest compiled and minified Boostrap CSS -->
+    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.css">
+    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.css">
+{% endblock bootstrap_css %}
+
+{% block extra_css %}
+		<style type="text/css">
+    		body {
+{% if fluid_layout %}
+  			    padding-top: 50px;
+{% endif %}
+			    color: #4A4A4A;
+		    }
+            @media (min-width: 768px) {
+                .indent-level {padding-left:10px; padding-right:10px;}
+            }
+            @media (min-width: 992px) {
+                .indent-level {padding-left:15px; padding-right:15px;}
+            }
+            @media (min-width: 1200px) {
+                .indent-level {padding-left:30px; padding-right:30px;}
+            }
+            hr { margin-top:10px; margin-bottom:10px; }
+            blockquote { font-size:0.92em; line-height:1.2em; padding-left:10px; background: none; margin-bottom:05px;}
+            blockquote footer { padding-top:4px; font-style:italic; padding-left:10px;}
+            .testbrdr-top {
+                border-top:1px dashed #eee;
+            }
+            .testbrdr {
+                border:0px dashed #aaa;
+            }
+            .sidebar > h4 {
+                margin-bottom:0px;
+                margin-left:-5px;
+            }
+		</style>
+{% endblock extra_css %}
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="{% block meta_keywords %}{% endblock meta_keywords %}"/>
+		<meta name="description" content="{% block meta_description %}{% endblock meta_description %}"/>
+    	<meta name="author" content="{% block meta_author %}Jef Duncan{% endblock meta_author %}">
+{%  block extra_meta %}
+{%  endblock extra_meta %}
+
+		{# javascript is loaded at the end of the body tag below #}
+    </head>
+
+    <body>
+		<div class="container{% if fluid_layout %}-fluid{% endif %}">
+{% block navigation %}
+    {% include 'header.html' %}
+{% endblock navigation %}
+		</div> <!-- container -->
+
+		<div id="ctr_main" class="container{% if fluid_layout %}-fluid{% endif %}">
+{% block user_messages %}
+	{% if messages %}
+			<div class="row">
+                <div class="col-sm-10 col-sm-offset-1">
+		{% for msg in messages %}
+                    <div class="{% if msg.tags %} {{ msg.tags }}{% endif %}">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{ msg }}
+                    </div>
+		{% endfor %}
+                </div>
+			</div>
+	{% endif %}
+{% endblock user_messages %}
+
+{% block content %}
+{% endblock content %}
+		</div> <!-- container -->
+
+		<div class="container{% if fluid_layout %}-fluid{% endif %}">
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock footer %}
+		</div> <!-- container -->
+
+{% block modal %}
+{% endblock modal %}
+
+{% block bootstrap_js %}
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+    	<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+{% endblock bootstrap_js %}
+
+{% block extra_js %}
+{% endblock extra_js %}
+
+{% block ajax_base_js %}
+        <script type="text/javascript">
+            var deletedTagId = null;
+
+            function get_common_post_data() {
+                rv = {
+                    "username": "{{ API_USER }}",
+                    "api_key": "{{ API_KEY }}",
+                    "created_by": "{{ user.id }}",
+                    "modified_by": "{{ user.id }}"
+                };
+                return rv;
+            }
+
+            function csrfSafeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            function get_cookie(name) {
+                var rv = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var c = jQuery.trim(cookies[i]);
+                        if (c.substring(0, name.length + 1) == (name + '=')) {
+                            rv = decodeURIComponent(c.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return rv;
+            }
+
+            function ajax_post_data(urlIn, dataIn, successIn) {
+                var dt = $.extend({}, get_common_post_data(), dataIn);
+                $.ajax({
+                    crossDomain: false,
+                    beforeSend: function(xhr, settings) {
+//                        if (csrfToken == null)
+//                            csrfToken = get_cookie('csrftoken');
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}")
+                    },
+                    type: "POST",
+                    url: urlIn,
+                    data: dt,
+                    success: successIn
+                });
+            }
+
+            function ajax_get_html(urlIn, successIn, dt) {
+                var d = null;
+                if (dt == null)
+                    d = {};
+                else
+                    d = $.extend({}, dt);
+                $.ajax({
+                    type: "GET",
+                    url: urlIn,
+                    data: d,
+                    success: successIn
+                });
+            }
+
+
+            function add_tag_to_obj(this_tag, oid, otyp) {
+                var dt = {
+                    'oid': oid,
+                    'tag': this_tag,
+                    'otyp': otyp
+                };
+{#                ajax_post_data("{% url 'add_tag' %}", dt, on_tag_added);#}
+            }
+
+            function on_tag_removed(resp) {
+                if (resp.result==='ok') {
+                    if (deletedTagId != null) {
+                        var e = $("#ta_"+deletedTagId);
+                        e.hide();
+                        e.remove();
+                        deletedTagId = null;
+                    }
+                }
+            }
+
+            function remove_tag_from_obj(tagid, tagname, oid, oname, otyp) {
+                if (confirm("Remove tag '" + tagname + "' from " + oname + "?")) {
+                    var dt = {
+                        'oid': oid,
+                        'tagid': tagid,
+                        'otyp': otyp
+                    };
+{#                    ajax_post_data("{% url 'remove_tag' %}", dt, on_tag_removed);#}
+                }
+            }
+
+        </script>
+{% endblock ajax_base_js %}
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+{% block jquery_on_doc_ready %}
+{% endblock jquery_on_doc_ready %}
+            });
+        </script>
+
+    </body>
+</html>

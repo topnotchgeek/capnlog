@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	{% if action == "Create" %}
+		Now, please select a username and password.<br/>
+	{% endif %}
+	<form action="" method="POST" id="user_form">
+		{% include 'form_fields.html' %}
+	</form>
+{% endblock %}

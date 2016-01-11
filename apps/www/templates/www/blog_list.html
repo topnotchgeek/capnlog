@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <h4>Recent Entries</h4>
+            <ul class="nav nav-pills nav-stacked">
+            {% for e in blog_entries %}
+                <li><a href="{{ e.get_absolute_url }}">{{ e.title }}</a></li>
+            {% empty %}
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="col-sm-6">
+            <h4>Welcome <span class="small">
+    {% if onboard  %}
+            Living aboard now for {{ days_aboard }} day{{ days_aboard|pluralize }}!
+    {% else %}
+        Moving aboard in {{ days_aboard }} day{{ days_aboard|pluralize }}!
+    {% endif %}
+            </span></h4>
+            <p>My wife Cat and I have talked for years about buying a boat big enough to live aboard full time. We looked at dozens of boats over the last couple of years. We saw a few we liked, but the circumstances were never quite right.</p>
+            <p>Then, in December 2015, we found "Rafiki." This time, circumstances were right: on a month-to-month lease, we have the money, etc. You can't talk for years about doing something, then not do it when you can, right? Plus, the boat is <strong>awesome</strong>!</p>
+            <p>She's a classic 42-foot trawler built 1962 in Seattle, WA. Wooden hull, single (Grey Marine) diesel engine. She's been beautifully restored by the previous owners. Aft master cabin with queen bed and 3/4 bath. Adorable galley and salon amidship. Up front is a V-berth with 2 twin beds and 1/2 bath.</p>
+            <p>I created this website to document (and share) our journey.</p>
+{% comment %}
+    {% if recent_entry %}
+            <h4>Most Recent</h4>
+            <div><a href="{{ recent_entry.get_absolute_url }}">{{ recent_entry.title }}</a></div>
+            <div>{{ recent_entry.as_html|safe|truncatechars_html:"120" }}</div>
+    {% endif %}
+{% endcomment %}
+        </div>
+        <div class="col-sm-3">
+            <img src="{{ STATIC_URL }}img/new_boat_3.jpg" class="img-responsive" style="padding-top:16px;"/>
+            <img src="{{ STATIC_URL }}img/new_boat_2.jpg" class="img-responsive" style="padding-top:16px;"/>
+        </div>
+    </div>
+{% endblock content %}

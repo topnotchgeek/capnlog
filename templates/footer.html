@@ -1,0 +1,35 @@
+{% comment %}
+			<hr/>
+			<div class="row">
+				<div class="col-md-8">
+{#	 {% include 'quotes/random_quote_ui.html' %}#}
+				</div>
+                <div class="col-md-4">
+{#	 {% include 'wu_attrib.html' %}#}
+                </div>
+			</div>
+{% endcomment %}
+
+			<hr/>
+			<div class="row">
+				<div class="col-sm-4">
+					<p class="small">
+						This website &copy; {% now "Y" %}, Jef Duncan
+{#                        &nbsp; <a href="{% url 'about' %}">About</a> #}
+					</p>
+				</div>
+				<div class="col-sm-4">
+                    <div>
+                        <img src="{{ STATIC_URL }}img/new_boat_1.jpg" height="100" width="150" class="thumbnail center-block"/>
+                    </div>
+                </div>
+				<div class="col-sm-4">
+					<p class="text-right small">
+						<a href="http://www.djangoproject.com/">Django</a> &nbsp;
+						<a href="http://getbootstrap.com/">Bootstrap</a> &nbsp;
+						<a href="http://jquery.com">jQuery</a> &nbsp;
+						<a href="http://jetbrains.com/pycharm">PyCharm</a> &nbsp;
+						<a href="http://commons.wikimedia.org">Wikimedia Commons</a>
+					</p>
+				</div>
+			</div>

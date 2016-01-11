@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-6">
+    {% if prev_entry %}<a href="{{ prev_entry.get_absolute_url }}"><span class="glyphicon glyphicon-arrow-left"></span> {{ prev_entry.title }}</a>{% endif %}
+        </div>
+        <div class="col-sm-6">
+    {% if next_entry %}<a href="{{ next_entry.get_absolute_url }}" class="pull-right">{{ next_entry.title }} <span class="glyphicon glyphicon-arrow-right"></span></a>{% endif %}
+        </div>
+    </div>
+    <hr/>
+{#    <div class="row">#}
+{#        <div class="col-sm-12">#}
+{#        </div>#}
+{#    </div>#}
+    <div class="row">
+        <div class="col-sm-4">
+            <img src="{{ STATIC_URL }}img/{{ random_img }}" class="img-responsive"/>
+{#            <div style="float: left; max-height: 200px; max-width: 300px; /*padding-right: 15px;*/">#}
+{#            </div>#}
+        </div>
+        <div class="col-sm-7">
+            <h4>{{ entry.title }} <span class="small">({{ entry.author.first_name }} - {{ entry.modify_time|date:"D d M, Y" }} {{ entry.modify_time|time:"H:i" }})</span></h4>
+            {{ entry.as_html|safe }}
+        </div>
+    </div>
+
+	{% if user.is_authenticated %}
+    <div class="row">
+        <div class="col-sm-12" style="padding-top: 15px;">
+            <a href="{% url 'blog-edit' entry.slug %}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock content %}

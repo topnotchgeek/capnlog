@@ -1,0 +1,50 @@
+			<div class="navbar navbar-inverse{% if fluid_layout %} navbar-fixed-top{% endif %}" role="navigation">		{# navbar-default #}
+ 					<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+   					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+     						<span class="sr-only">Toggle navigation</span>
+     						<span class="icon-bar"></span>
+     						<span class="icon-bar"></span>
+     						<span class="icon-bar"></span>
+   					</button>
+				    <a class="navbar-brand" href="{% url 'home' %}">Captains Log</a>
+ 				</div>
+				<!-- Collect the nav links, forms, and other content for toggling -->
+ 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+{#						<li{% if page_title == "Blog Entries" %} class="active"{% endif %}><a href="{% url 'blog-home' %}">Blog</a></li>#}
+{#						<li{% if page_title == "Visitors" %} class="active"{% endif %}><a href="{% url 'visitors' %}">Visitors</a></li>#}
+{#						<li{% if page_title == "Photos" %} class="active"{% endif %}><a href="{% url 'photos' %}">Photos</a></li>#}
+{#                        <li{% if page_title == "San Diego Weather" %} class="active"{% endif %}><a href="{% url 'weather' %}">San Diego Weather</a></li>#}
+   					</ul>
+   					<ul class="nav navbar-nav navbar-right">
+	{% if user.is_authenticated %}
+                        <li><a href="{% url 'blog-add' %}"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+		{% block page_actions %}
+		{% endblock %}
+						<li class="dropdown">
+   							<a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ user.first_name }} &nbsp; <span class="glyphicon glyphicon-cog"></span></a>
+   							<ul class="dropdown-menu">
+{#								<li class=""><a href="{% url 'acct_home' %}">My Account</a></li>#}
+		{% if user.is_superuser %}
+			{% block super_actions %}
+								<li><a href="/admin">Admin</a></li>
+			{% endblock super_actions %}
+		{% endif %}
+		{% if user.is_staff %}
+			{% block staff_actions %}
+			{% endblock staff_actions %}
+		{% endif %}
+		{% if quotes_to_approve %}
+{#								<li><a href="{% url 'approve_quotes' %}">Approve Quotes &nbsp; <span class="badge">{{ quotes_to_approve }}</span></a></li>#}
+								<li class="divider"></li>
+        {% endif %}
+								<li class=""><a href="{% url 'logout'%}">Logout</a></li>
+						    </ul>
+						</li>
+	{% else %}
+						<li class="" style="padding-right:10px;"><a href="{% url 'login'%}">Login</a></li>
+	{% endif %}
+   					</ul>
+				</div><!-- /.navbar-collapse -->
+			</div>

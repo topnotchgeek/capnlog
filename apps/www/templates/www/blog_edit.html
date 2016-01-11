@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{#    <div class="row">#}
+{#        <div class="col-sm-6">#}
+{#    {% if prev_entry %}<a href="{{ prev_entry.get_absolute_url }}">{{ prev_entry.title }}</a>{% endif %}#}
+{#        </div>#}
+{#        <div class="col-sm-6">#}
+{#    {% if next_entry %}<a href="{{ next_entry.get_absolute_url }}" class="pull-right">{{ next_entry.title }}</a>{% endif %}#}
+{#        </div>#}
+{#    </div>#}
+{#    <hr/>#}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="blog_form" method="post" enctype="multipart/form-data" {% if form_id %}id="{{ form_id }}"{% endif %}>
+                {% csrf_token %}
+                <input type="hidden" name="author" id="id_author" value="{{ user.id }}"/>
+                {% with fld=form.title %}
+                    {% include 'div_fld.html' %}
+                {% endwith %}
+                {% with fld=form.entry_text col_class='col-sm-6' %}
+                    {% include 'div_fld.html' %}
+                {% endwith %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

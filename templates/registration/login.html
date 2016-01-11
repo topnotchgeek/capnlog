@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block jquery_on_doc_ready %}
+    $("input[type='text']:first", document.forms[0]).focus();
+{% endblock %}
+
+{% block extra_css_not %}
+    <link type=text/css rel=stylesheet href="//www.gstatic.com/authtoolkit/css/gitkit.css" />
+{% endblock %}
+
+{% block extra_js_not %}
+    <script type="text/javascript" src="//www.gstatic.com/authtoolkit/js/gitkit.js"></script>
+    <script type=text/javascript>
+      window.google.identitytoolkit.signInButton(
+        '#navbar', // accepts any CSS selector
+        {
+          widgetUrl: "http://localhost:8000/oauth_redirect/",
+          signOutUrl: "/"
+        }
+      );
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-8 col-md-offset1">
+            <h3>Login</h3>
+        {% if form.errors %}
+            <div class="alert alert-danger">
+            Your username and password didn't match. Please try again.
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-3 col-md-offset1">
+            <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+                <div class="form-group">
+                    {{ form.username.label_tag }}
+                    <input class="form-control" type="text" id="id_{{ form.username.name }}" name="{{ form.username.name }}" maxlength="254"/>
+                    {% if form.username.help_text %}<p class="help-block">{{ form.username.help_text }}{% endif %}</p>
+                </div>
+                <div class="form-group">
+                    {{ form.password.label_tag }}
+                    <input class="form-control" type="password" id="id_{{ form.password.name }}" name="{{ form.password.name }}" maxlength="254"/>
+                    {% if form.password.help_text %}<p class="help-block">{{ form.password.help_text }}{% endif %}</p>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit" value="Login">Login</button>
+                </div>
+                <input type="hidden" name="next" value="{{ next }}" />
+            </form>
+        </div>
+    </div>
+{% comment %}
+    <div class="row">
+        <div class="col-xs-8 col-md-offset1">
+            <div id="navbar"></div>
+        </div>
+    </div>
+{% endcomment %}
+{% endblock %}
