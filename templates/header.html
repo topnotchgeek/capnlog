@@ -35,10 +35,6 @@
 			{% block staff_actions %}
 			{% endblock staff_actions %}
 		{% endif %}
-		{% if quotes_to_approve %}
-{#								<li><a href="{% url 'approve_quotes' %}">Approve Quotes &nbsp; <span class="badge">{{ quotes_to_approve }}</span></a></li>#}
-								<li class="divider"></li>
-        {% endif %}
 								<li class=""><a href="{% url 'logout'%}">Logout</a></li>
 						    </ul>
 						</li>
