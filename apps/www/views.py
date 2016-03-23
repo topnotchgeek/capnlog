@@ -259,6 +259,7 @@ class WeatherView(WebsiteView):
 @csrf_exempt
 def api_post(request):
     if request.method == 'POST':
+        logger.debug('api_post')
         auth = request.META['HTTP_AUTHORIZATION'] or None
         if auth is None or len(auth) < 10:
             return HttpResponseBadRequest()
@@ -267,6 +268,7 @@ def api_post(request):
         except Token.DoesNotExist:
             return HttpResponseBadRequest()
         u = tkn.user
+        logger.debug('authorized: %s' % u.username)
         d = json.loads(request.body)
         if hasattr(d, 'imgdata'):
             save_image(d)
@@ -276,23 +278,24 @@ def api_post(request):
     return HttpResponseBadRequest()
 
 def save_image(d):
-        cid = d['cam_id'] or 0
-        fnm = d['fname'] or None
-        img = d['imgdata'] or None
-        if fnm is None or img is None:
-            resp = HttpResponse()
-            resp.status_code = 400
-            return resp
-        path = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
-        fout = open(path, "wb")
-        fout.write(img.decode("base64"))
-        fout.close()
-        try:
-            wc = Webcam.objects.get(pk=cid)
-            ss = Snapshot()
-            ss.webcam = wc
-            ss.img_name = fnm
-            ss.img_path = settings.WEBCAM_IMAGE_PATH
-            ss.save()
-        except Webcam.DoesNotExist:
-            rc = 404
+    cid = d['cam_id'] or 0
+    fnm = d['fname'] or None
+    img = d['imgdata'] or None
+    if fnm is None or img is None:
+        resp = HttpResponse()
+        resp.status_code = 400
+        return resp
+    path = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
+    logger.debug('save_image: %s' % path)
+    fout = open(path, "wb")
+    fout.write(img.decode("base64"))
+    fout.close()
+    try:
+        wc = Webcam.objects.get(pk=cid)
+        ss = Snapshot()
+        ss.webcam = wc
+        ss.img_name = fnm
+        ss.img_path = settings.WEBCAM_IMAGE_PATH
+        ss.save()
+    except Webcam.DoesNotExist:
+        rc = 404
