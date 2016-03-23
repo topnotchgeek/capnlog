@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
-    api_post, wrapped_login, wrapped_logout
+    api_post, wrapped_login, wrapped_logout, BoatCamView
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^visitors$', VisitorsView.as_view(), name='visitors'),
     url(r'^photos$', PhotosView.as_view(), name='photos'),
     url(r'^weather$', WeatherView.as_view(), name='weather'),
+    url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
 
     url(r'^api_post$', api_post, name='api_post'),
 

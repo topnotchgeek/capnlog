@@ -256,6 +256,24 @@ class WeatherView(WebsiteView):
         return 'San Diego Weather'
 
 
+class BoatCamView(WebsiteView):
+
+    template_name = 'www/boat_cam.html'
+
+    def get_page_title(self):
+        return 'Boat Cam!'
+
+    def get_context_data(self, **kwargs):
+        rv = super(BoatCamView, self).get_context_data(**kwargs)
+        if rv is None:
+            rv = {}
+        wc = Webcam.objects.get(pk=1)
+        imgs = Snapshot.objects.filter(webcam=wc).order_by('ts_create')
+        limg = imgs[0]
+        rv['last_image'] = limg
+        return rv
+
+
 @csrf_exempt
 def api_post(request):
     if request.method == 'POST':
