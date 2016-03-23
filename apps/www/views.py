@@ -268,7 +268,7 @@ class BoatCamView(WebsiteView):
         if rv is None:
             rv = {}
         wc = Webcam.objects.get(pk=1)
-        imgs = Snapshot.objects.filter(webcam=wc).order_by('ts_create')
+        imgs = Snapshot.objects.filter(webcam=wc).order_by('-ts_create')
         limg = imgs[0]
         rv['last_image'] = limg
         return rv
