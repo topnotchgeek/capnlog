@@ -268,9 +268,7 @@ class BoatCamView(WebsiteView):
         if rv is None:
             rv = {}
         wc = Webcam.objects.get(pk=1)
-        imgs = Snapshot.objects.filter(webcam=wc).order_by('-ts_create')
-        limg = imgs[0]
-        rv['last_image'] = limg
+        rv['last_image'] = Snapshot.objects.filter(webcam=wc).order_by('-ts_create')[0]
         rv['auto_refresh'] = True
         rv['auto_refresh_secs'] = 60
         return rv
