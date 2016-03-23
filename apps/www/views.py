@@ -288,10 +288,10 @@ def api_post(request):
         u = tkn.user
         logger.debug('authorized: %s' % u.username)
         d = json.loads(request.body)
-        save_image(d)
-        d['result'] = "success"
-        d['user_id'] = u.id
-        return JsonResponse(d)
+        ss = save_image(d)
+        # d['result'] = "success"
+        # d['user_id'] = u.id
+        return JsonResponse({"result": "success", "user_id": u.id, "img_id": ss.id })
     return HttpResponseBadRequest()
 
 def save_image(d):
@@ -316,3 +316,4 @@ def save_image(d):
     ss.img_name = fnm
     ss.img_path = settings.WEBCAM_IMAGE_PATH
     ss.save()
+    return ss
