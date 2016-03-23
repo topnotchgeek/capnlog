@@ -270,8 +270,7 @@ def api_post(request):
         u = tkn.user
         logger.debug('authorized: %s' % u.username)
         d = json.loads(request.body)
-        if hasattr(d, 'imgdata'):
-            save_image(d)
+        save_image(d)
         d['result'] = "success"
         d['user_id'] = u.id
         return JsonResponse(d)
@@ -279,23 +278,23 @@ def api_post(request):
 
 def save_image(d):
     cid = d['cam_id'] or 0
+    try:
+        wc = Webcam.objects.get(pk=cid)
+    except Webcam.DoesNotExist:
+        logger.debug('webcam not found: %d' % cid)
+        return
     fnm = d['fname'] or None
     img = d['imgdata'] or None
     if fnm is None or img is None:
-        resp = HttpResponse()
-        resp.status_code = 400
-        return resp
+        logger.debug('save_image: bad data')
+        return
     path = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
     logger.debug('save_image: %s' % path)
     fout = open(path, "wb")
     fout.write(img.decode("base64"))
     fout.close()
-    try:
-        wc = Webcam.objects.get(pk=cid)
-        ss = Snapshot()
-        ss.webcam = wc
-        ss.img_name = fnm
-        ss.img_path = settings.WEBCAM_IMAGE_PATH
-        ss.save()
-    except Webcam.DoesNotExist:
-        rc = 404
+    ss = Snapshot()
+    ss.webcam = wc
+    ss.img_name = fnm
+    ss.img_path = settings.WEBCAM_IMAGE_PATH
+    ss.save()
