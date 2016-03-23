@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import markdown
 from django.db import models
+from django.db.models import CharField, TextField, DecimalField, ForeignKey, DateTimeField
 from django.utils import timezone
 from django.utils.text import slugify
 from datetime import datetime
@@ -102,3 +103,23 @@ class BlogEntry(Htmlable, Syncable, Timestampable, Permalinkable, Authorable, mo
     @property
     def url_name(self):
         return 'blog-detail'
+
+
+class Webcam(models.Model):
+    name = CharField(max_length=100, unique=True)
+    description = TextField(blank=True, null=True)
+    latitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
+    longitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
+
+    def __unicode__(self):
+        return '%s' % self.name
+
+
+class Snapshot(models.Model):
+    webcam = ForeignKey(Webcam)
+    ts_create = DateTimeField(auto_created=True, auto_now_add=True)
+    img_name = CharField(max_length=255, blank=True, null=True)
+    img_path = CharField(max_length=1024, blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s from %s' % (self.img_name, self.webcam.name)

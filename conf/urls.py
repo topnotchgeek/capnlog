@@ -16,7 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView
+from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
+    api_post, wrapped_login, wrapped_logout
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -30,9 +31,10 @@ urlpatterns = [
     url(r'^photos$', PhotosView.as_view(), name='photos'),
     url(r'^weather$', WeatherView.as_view(), name='weather'),
 
+    url(r'^api_post$', api_post, name='api_post'),
 
-    url(r'^login/$', 'apps.www.views.wrapped_login', name='login'),
-    url(r'^logout/$', 'apps.www.views.wrapped_logout', name='logout'),
+    url(r'^login/$', wrapped_login, name='login'),
+    url(r'^logout/$', wrapped_logout, name='logout'),
 
     url(r'^admin/', admin.site.urls),
 

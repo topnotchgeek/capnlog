@@ -1,20 +1,24 @@
+import json
 import logging
+import os
 
 from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.contrib.auth.views import login, logout
 
 # Create your views here.
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
 from vanilla import ListView, DetailView, UpdateView, CreateView
 from vanilla.views import TemplateView
 
 from conf import settings
 
-from .models import BlogEntry
+from .models import BlogEntry, Webcam, Snapshot
 from .forms import BlogEntryForm
 from .util import FileBasedImageManager
 
@@ -250,3 +254,45 @@ class WeatherView(WebsiteView):
 
     def get_page_title(self):
         return 'San Diego Weather'
+
+
+@csrf_exempt
+def api_post(request):
+    if request.method == 'POST':
+        auth = request.META['HTTP_AUTHORIZATION'] or None
+        if auth is None or len(auth) < 10:
+            return HttpResponseBadRequest()
+        try:
+            tkn = Token.objects.get(key=auth[6:])
+        except Token.DoesNotExist:
+            return HttpResponseBadRequest()
+        u = tkn.user
+        d = json.loads(request.body)
+        if hasattr(d, 'imgdata'):
+            save_image(d)
+        d['result'] = "success"
+        d['user_id'] = u.id
+        return JsonResponse(d)
+    return HttpResponseBadRequest()
+
+def save_image(d):
+        cid = d['cam_id'] or 0
+        fnm = d['fname'] or None
+        img = d['imgdata'] or None
+        if fnm is None or img is None:
+            resp = HttpResponse()
+            resp.status_code = 400
+            return resp
+        path = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
+        fout = open(path, "wb")
+        fout.write(img.decode("base64"))
+        fout.close()
+        try:
+            wc = Webcam.objects.get(pk=cid)
+            ss = Snapshot()
+            ss.webcam = wc
+            ss.img_name = fnm
+            ss.img_path = settings.WEBCAM_IMAGE_PATH
+            ss.save()
+        except Webcam.DoesNotExist:
+            rc = 404
