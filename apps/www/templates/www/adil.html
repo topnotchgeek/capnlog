@@ -17,6 +17,10 @@
         </ul>
         </div>
         <div class="col-sm-10">
+            <div id="img_div">
+                <img id="cur_img" src="" class="img-responsive"/>
+            </div>
+{% comment %}
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps.count %}
             {% if cnt == 0 %}
@@ -31,6 +35,7 @@
             {% endif %}
         {% endwith %}
     {% endfor %}
+{% endcomment %}
         </div>
     </div>
 
@@ -46,6 +51,45 @@
 {% block extra_js %}
     <script type="text/javascript">
         var prevDivId = null;
+        var imgDict = {};
+        var curImgs = null;
+        var curIndex = 0;
+        var curTimer = 0;
+
+    {% for sbh in snaps_by_hour %}
+        {% with cnt=sbh.snaps.count %}
+            imgDict["hour_{{ sbh.hour|date:"H" }}"] = []
+            {% if cnt == 0 %}
+            {% else %}
+                {% for s in sbh.snaps %}
+                    imgDict["hour_{{ sbh.hour|date:"H" }}"].push("{{ s.img_name }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        if (curImgs == null && imgDict["hour_{{ sbh.hour|date:"H" }}"].length > 0)
+            curImgs = imgDict["hour_{{ sbh.hour|date:"H" }}"];
+    {% endfor %}
+
+        function start_show() {
+            if (curTimer != 0) {
+                clearTimeout(curTimer);
+                curTimer = 0;
+            }
+            curIndex = 0;
+            next_image();
+        }
+
+        function next_image() {
+            if (curImgs == null)
+                return;
+            var n = curImgs.length;
+            if (curIndex >= n)
+                curIndex = 0;
+            var nm = "{{ STATIC_URL }}img/webcam/" + curImgs[curIndex];
+            $("#cur_img").attr('src', nm);
+            curIndex = curIndex + 1;
+            curTimer = setTimeout(next_image, 1000);
+        }
     </script>
 {% endblock %}
 
@@ -54,6 +98,9 @@
     $(".nav-hour").click(function(evt) {
         evt.preventDefault();
         var id = $(this).attr('id');
+        curImgs = imgDict[id];
+        start_show();
+/*
         if (id.indexOf("hour_" >= 0))
             id = id.substring(5);
         var divid = "snaps_" + id;
@@ -62,5 +109,6 @@
         }
         prevDivId = divid;
         $("#"+divid).show();
+*/
     });
 {% endblock %}
