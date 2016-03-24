@@ -316,7 +316,7 @@ class DayInTheLifeView(WebsiteView):
     def _find_sbh(self, y, m, d, hr):
         dfrom = datetime(y, m, d, hr, 0)
         dto = datetime(y, m, d, hr, 59)
-        return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
+        return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
 
     def get(self, request, *args, **kwargs):
         rv = super(DayInTheLifeView, self).get(request, *args, **kwargs)
