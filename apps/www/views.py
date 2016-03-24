@@ -280,6 +280,7 @@ class BoatCamView(WebsiteView):
 class DayInTheLifeView(WebsiteView):
 
     template_name = 'www/adil.html'
+    webcam = None
 
     def get_page_title(self):
         return 'A Day in the Life'
@@ -292,29 +293,30 @@ class DayInTheLifeView(WebsiteView):
         snaps = None
         try:
             wc = Webcam.objects.get(pk=1)
-            dfrom = datetime(y, m, d, 0, 0)
-            dto = datetime(y, m, d, 23, 59)
-            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
+            self.webcam = wc
+            # snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
         except Webcam.DoesNotExist:
             pass
         rv['which_date'] = datetime(y, m, d)
-        rv['snaps'] = snaps
-        rv['snaps_by_hour'] = self._build_sbh(snaps, y, m, d)
+        # rv['snaps'] = snaps
+        rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
 
-    def _build_sbh(self, snaps, y, m, d):
-        if snaps is None:
-            return
+    def _build_sbh(self, y, m, d):
+        # if snaps is None:
+        #     return
+        dfrom = datetime(y, m, d, 0, 0)
+        dto = datetime(y, m, d, 23, 59)
         sbh = []
         for i in range(0,24):
             hr = datetime(y, m, d, i, 0)
-            sbh.append({"hour": hr, "snaps" : self._find_sbh(snaps, y, m, d, i)})
+            sbh.append({"hour": hr, "snaps" : self._find_sbh(y, m, d, i)})
         return sbh
 
-    def _find_sbh(self, snaps, y, m, d, hr):
+    def _find_sbh(self, y, m, d, hr):
         dfrom = datetime(y, m, d, hr, 0)
         dto = datetime(y, m, d, hr, 59)
-        return snaps.filter(ts_create__range=(dfrom, dto))
+        return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
 
     def get(self, request, *args, **kwargs):
         rv = super(DayInTheLifeView, self).get(request, *args, **kwargs)
