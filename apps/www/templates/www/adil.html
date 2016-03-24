@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>{{ page_title }} <span class="small">{{ which_date|date:"M j, Y" }}</span></h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+        <ul class="nav nav-pills nav-stacked">
+    {% for sbh in snaps_by_hour %}
+        {% with cnt=sbh.snaps.count %}
+            <li id="hour_{{ sbh.hour|date:"H" }}" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"h A" }} <span class="badge">{{ cnt }}</span></a></li>
+        {% endwith %}
+    {% endfor %}
+        </ul>
+        </div>
+        <div class="col-sm-10">
+    {% for sbh in snaps_by_hour %}
+        {% with cnt=sbh.snaps.count %}
+            {% if cnt == 0 %}
+            {% else %}
+                <div id="snaps_{{ sbh.hour|date:"H" }}" style="display: none">
+                {% for s in snaps %}
+                    <div style="height: 120px; width: 120px; float:right">
+                        <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" class="img-responsive"/>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style type="text/css">
+
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+        var prevDivId = null;
+    </script>
+{% endblock %}
+
+{% block jquery_on_doc_ready %}
+    prevDivId = null;
+    $(".nav-hour").click(function(evt) {
+        evt.preventDefault();
+        var id = $(this).attr('id');
+        if (id.indexOf("hour_" >= 0))
+            id = id.substring(5);
+        var divid = "snaps_" + id;
+        if (prevDivId != null) {
+            $("#"+prevDivId).hide();
+        }
+        prevDivId = divid;
+        $("#"+divid).show();
+    });
+{% endblock %}

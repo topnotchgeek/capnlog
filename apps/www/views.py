@@ -267,10 +267,79 @@ class BoatCamView(WebsiteView):
         rv = super(BoatCamView, self).get_context_data(**kwargs)
         if rv is None:
             rv = {}
-        wc = Webcam.objects.get(pk=1)
-        rv['last_image'] = Snapshot.objects.filter(webcam=wc).order_by('-ts_create')[0]
+        try:
+            wc = Webcam.objects.get(pk=1)
+            rv['last_image'] = wc.snapshot_set.latest('ts_create')
+        except Webcam.DoesNotExist:
+            pass
         rv['auto_refresh'] = True
         rv['auto_refresh_secs'] = 60
+        return rv
+
+
+class DayInTheLifeView(WebsiteView):
+
+    template_name = 'www/adil.html'
+
+    def get_page_title(self):
+        return 'A Day in the Life'
+
+    def get_context_data(self, **kwargs):
+        rv = super(DayInTheLifeView, self).get_context_data(**kwargs)
+        y = int(self.kwargs['year'])
+        m = int(self.kwargs['month'])
+        d = int(self.kwargs['day'])
+        snaps = None
+        try:
+            wc = Webcam.objects.get(pk=1)
+            dfrom = datetime(y, m, d, 0, 0)
+            dto = datetime(y, m, d, 23, 59)
+            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
+        except Webcam.DoesNotExist:
+            pass
+        rv['which_date'] = datetime(y, m, d)
+        rv['snaps'] = snaps
+        rv['snaps_by_hour'] = self._build_sbh(snaps, y, m, d)
+        return rv
+
+    def _build_sbh(self, snaps, y, m, d):
+        if snaps is None:
+            return
+        sbh = []
+        for i in range(0,24):
+            hr = datetime(y, m, d, i, 0)
+            sbh.append({"hour": hr, "snaps" : self._find_sbh(snaps, y, m, d, i)})
+        return sbh
+
+    def _find_sbh(self, snaps, y, m, d, hr):
+        dfrom = datetime(y, m, d, hr, 0)
+        dto = datetime(y, m, d, hr, 59)
+        return snaps.filter(ts_create__range=(dfrom, dto))
+
+    def get(self, request, *args, **kwargs):
+        rv = super(DayInTheLifeView, self).get(request, *args, **kwargs)
+        return rv
+
+
+class AdilHourView(TemplateView):
+
+    template_name = 'www/aidl_hour.html'
+
+    def get_context_data(self, **kwargs):
+        rv = super(AdilHourView, self).get_context_data(**kwargs)
+        y = int(self.kwargs['year'])
+        m = int(self.kwargs['month'])
+        d = int(self.kwargs['day'])
+        h = int(self.kwargs['hour'])
+        snaps = None
+        try:
+            wc = Webcam.objects.get(pk=1)
+            dfrom = datetime(y, m, d, h, 0)
+            dto = datetime(y, m, d, h, 59)
+            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
+        except Webcam.DoesNotExist:
+            pass
+        rv['snaps'] = snaps
         return rv
 
 

@@ -114,6 +114,9 @@ class Webcam(models.Model):
     def __unicode__(self):
         return '%s' % self.name
 
+    def get_absolute_url(self):
+        return ''
+
 
 class Snapshot(models.Model):
     webcam = ForeignKey(Webcam)
@@ -123,3 +126,6 @@ class Snapshot(models.Model):
 
     def __unicode__(self):
         return '%s from %s' % (self.img_name, self.webcam.name)
+
+    def get_absolute_url(self):
+        return ''

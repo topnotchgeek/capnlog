@@ -1,0 +1,10 @@
+    <div class="row">
+        <div class="col-sm-12">
+    {% for s in snaps %}
+            <div style="height: 120px; width: 120px; float:right">
+                <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" class="img-responsive"/>
+            </div>
+    {% endfor %}
+        </div>
+    </div>
+
