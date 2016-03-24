@@ -17,6 +17,7 @@
         </ul>
         </div>
         <div class="col-sm-10">
+            <p id="img_desc" class="small"></p>
             <div id="img_div">
                 <img id="cur_img" src="" class="img-responsive"/>
             </div>
@@ -55,6 +56,7 @@
         var curImgs = null;
         var curIndex = 0;
         var curTimer = 0;
+        var curLen = 0;
 
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps.count %}
@@ -75,16 +77,21 @@
                 clearTimeout(curTimer);
                 curTimer = 0;
             }
+            $("#img_desc").html("");
             curIndex = 0;
+            curLen = 0;
+            if (curImgs == null)
+                return;
+            curLen = curImgs.length;
             next_image();
         }
 
         function next_image() {
             if (curImgs == null)
                 return;
-            var n = curImgs.length;
-            if (curIndex >= n)
+            if (curIndex >= curLen)
                 curIndex = 0;
+            $("#img_desc").html((curIndex+1) + " of " + curLen);
             var nm = "{{ STATIC_URL }}img/webcam/" + curImgs[curIndex];
             $("#cur_img").attr('src', nm);
             curIndex = curIndex + 1;
@@ -100,7 +107,7 @@
         var id = $(this).attr('id');
         curImgs = imgDict[id];
         start_show();
-/*
+{% comment %}
         if (id.indexOf("hour_" >= 0))
             id = id.substring(5);
         var divid = "snaps_" + id;
@@ -109,6 +116,6 @@
         }
         prevDivId = divid;
         $("#"+divid).show();
-*/
+{% endcomment %}
     });
 {% endblock %}
