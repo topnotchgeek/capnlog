@@ -21,22 +21,18 @@
             <div id="img_div">
                 <img id="cur_img" src="" class="img-responsive"/>
             </div>
-{% comment %}
+            <div id="hidden_div" style="display: none">
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps.count %}
             {% if cnt == 0 %}
             {% else %}
-                <div id="snaps_{{ sbh.hour|date:"H" }}" style="display: none">
                 {% for s in sbh.snaps %}
-                    <div style="height: 200px; width: 200px; padding: 4px; float:left">
-                        <a href="{{ STATIC_URL }}img/webcam/{{ s.img_name }}"><img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"h:iA" }}" alt="{{ s.ts_create|date:"h:iA" }}" class="img-responsive"/></a>
-                    </div>
+                        <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"h:iA" }}" alt="{{ s.ts_create|date:"h:iA" }}" class="img-responsive"/>
                 {% endfor %}
-                </div>
             {% endif %}
         {% endwith %}
     {% endfor %}
-{% endcomment %}
+            </div>
         </div>
     </div>
 
@@ -64,7 +60,7 @@
             {% if cnt == 0 %}
             {% else %}
                 {% for s in sbh.snaps %}
-                    imgDict["hour_{{ sbh.hour|date:"H" }}"].push("{{ s.img_name }}");
+                    imgDict["hour_{{ sbh.hour|date:"H" }}"].push({"title": "{{ s.ts_create|date:"h:iA" }}", "name": "{{ s.img_name }}"});
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -91,9 +87,11 @@
                 return;
             if (curIndex >= curLen)
                 curIndex = 0;
-            $("#img_desc").html((curIndex+1) + " of " + curLen);
-            var nm = "{{ STATIC_URL }}img/webcam/" + curImgs[curIndex];
-            $("#cur_img").attr('src', nm);
+            var d = curImgs[curIndex];
+            $("#img_desc").html(d['title']);
+            $("#cur_img").attr('src', "{{ STATIC_URL }}img/webcam/" + d['name']);
+            $("#cur_img").attr('title', d['title']);
+            $("#cur_img").attr('alt', d['title']);
             curIndex = curIndex + 1;
             curTimer = setTimeout(next_image, 1000);
         }
