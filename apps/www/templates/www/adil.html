@@ -22,7 +22,7 @@
             {% if cnt == 0 %}
             {% else %}
                 <div id="snaps_{{ sbh.hour|date:"H" }}" style="display: none">
-                {% for s in snaps %}
+                {% for s in sbh.snaps %}
                     <div style="height: 120px; width: 120px; float:right">
                         <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" class="img-responsive"/>
                     </div>
