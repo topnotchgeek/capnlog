@@ -81,7 +81,7 @@
         }
         var t = selImg.attr('title');
         var s = selImg.attr('src');
-        $("#img_desc").html(t);
+        $("#img_desc").html(t + ": " + curIndex);
         var curImg = $("#cur_img");
         curImg.attr('alt', t);
         curImg.attr('title', t);
@@ -102,10 +102,11 @@
 
     function updateUi() {
         console.log('updateUi ' + curLen + ", " + curIndex);
-        enableBtn("btn_first", !isPlaying && curLen > 0 && curIndex > 0);
-        enableBtn("btn_prev", !isPlaying && curLen > 0 && curIndex > 0);
-        enableBtn("btn_next", !isPlaying && curLen > 0 && curIndex < curLen);
-        enableBtn("btn_last", !isPlaying && curLen > 0 && curIndex < curLen);
+        var e = (!isPlaying && curLen > 0);
+        enableBtn("btn_first", e && curIndex > 0);
+        enableBtn("btn_prev", e && curIndex > 0);
+        enableBtn("btn_next", e && curIndex < curLen);
+        enableBtn("btn_last", e && curIndex < curLen);
 
         $("#btn_play").html(isPlaying ? "Stop" : "Play");
         enableBtn("btn_play", curLen > 0);
@@ -138,8 +139,12 @@
             console.log('play clicked');
             isPlaying = !isPlaying;
             updateUi();
-            if (isPlaying)
+            if (isPlaying) {
+                if (curIndex == curLen-1) {
+                    curIndex = 0;
+                }
                 showImg();
+            }
             else
                 cnclTimer();
         });
