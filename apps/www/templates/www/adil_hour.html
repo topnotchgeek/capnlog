@@ -109,8 +109,8 @@
         var e = (!isPlaying && curLen > 0);
         enableBtn("btn_first", e && curIndex > 0);
         enableBtn("btn_prev", e && curIndex > 0);
-        enableBtn("btn_next", e && curIndex < curLen);
-        enableBtn("btn_last", e && curIndex < curLen);
+        enableBtn("btn_next", e && curIndex < curLen-1);
+        enableBtn("btn_last", e && curIndex < curLen-1);
 
         $("#btn_play").html(isPlaying ? '<span class="glyphicon glyphicon-pause"/>' : '<span class="glyphicon glyphicon-play"/>');
         enableBtn("btn_play", curLen > 0);
