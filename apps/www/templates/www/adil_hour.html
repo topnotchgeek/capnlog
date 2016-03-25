@@ -51,10 +51,11 @@
     }
 
     function nextImg() {
-        if (curIndex > curLen - 1) {
+        if (curIndex == curLen) {
             if (isPlaying) {
                 isPlaying = false;
-                updateUi();
+                curIndex = curLen-1;
+                showImg();
             }
             return;
         }
@@ -63,7 +64,7 @@
     }
 
     function lastImg() {
-        if (curIndex > curLen -1)
+        if (curIndex == curLen)
             return;
         curIndex = curLen-1;
         showImg();
@@ -104,8 +105,8 @@
         console.log('updateUi ' + curLen + ", " + curIndex);
         enableBtn("btn_first", !isPlaying && curLen > 0 && curIndex > 0);
         enableBtn("btn_prev", !isPlaying && curLen > 0 && curIndex > 0);
-        enableBtn("btn_next", !isPlaying && curLen > 0 && curIndex < curLen-1);
-        enableBtn("btn_last", !isPlaying && curLen > 0 && curIndex < curLen-1);
+        enableBtn("btn_next", !isPlaying && curLen > 0 && curIndex < curLen);
+        enableBtn("btn_last", !isPlaying && curLen > 0 && curIndex < curLen);
 
         $("#btn_play").html(isPlaying ? "Stop" : "Play");
         enableBtn("btn_play", curLen > 0);
