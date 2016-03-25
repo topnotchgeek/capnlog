@@ -1,11 +1,10 @@
     <div class="row">
         <div class="col-sm-12">
             <button id="btn_first" class="btn btn-default btn-sm">First</button>
-{% comment %}
             <button id="btn_prev" class="btn btn-default btn-sm">Prev</button>
             <button id="btn_next" class="btn btn-default btn-sm">Next</button>
             <button id="btn_last" class="btn btn-default btn-sm">Last</button>
-{% endcomment %}
+
             <button id="btn_play" class="btn btn-default btn-sm">Play</button>
         </div>
     </div>
@@ -53,7 +52,10 @@
 
     function nextImg() {
         if (curIndex > curLen - 1) {
-            isPlaying = false;
+            if (isPlaying) {
+                curIndex = 0;
+                showImg();
+            }
             return;
         }
         curIndex = curIndex + 1;
@@ -71,11 +73,12 @@
     function showImg() {
         updateUi();
         cnclTimer();
-        var selImg = $("#img_"+curIndex);
+        var sel = "#img_" + curIndex;
+        console.log('showImg ' + sel);
+        var selImg = $(sel);
         if (selImg == null) {
             return;
         }
-        console.log('showImg ' + selImg.attr('id'));
         var t = selImg.attr('title');
         var s = selImg.attr('src');
         $("#img_desc").html(t);
@@ -100,11 +103,10 @@
     function updateUi() {
         console.log('updateUi ' + curLen + ", " + curIndex);
         enableBtn("btn_first", !isPlaying && curLen > 0 && curIndex > 0);
-{% comment %}
-        enableBtn("btn_prev", curLen > 0 && curIndex > 0);
-        enableBtn("btn_next", curLen > 0 && curIndex < curLen-1);
-        enableBtn("btn_last", curLen > 0 && curIndex < curLen-1);
-{% endcomment %}
+        enableBtn("btn_prev", !isPlaying && curLen > 0 && curIndex > 0);
+        enableBtn("btn_next", !isPlaying && curLen > 0 && curIndex < curLen-1);
+        enableBtn("btn_last", !isPlaying && curLen > 0 && curIndex < curLen-1);
+
         $("#btn_play").html(isPlaying ? "Stop" : "Play");
         enableBtn("btn_play", curLen > 0);
     }
@@ -115,7 +117,6 @@
             console.log('first clicked');
             firstImg();
         });
-{% comment %}
         $("#btn_prev").click(function(evt) {
             evt.preventDefault();
             console.log('prev clicked');
@@ -131,7 +132,7 @@
             console.log('last clicked');
             lastImg();
         });
-{% endcomment %}
+
         $("#btn_play").click(function(evt) {
             evt.preventDefault();
             console.log('play clicked');
