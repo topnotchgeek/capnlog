@@ -294,23 +294,18 @@ class DayInTheLifeView(WebsiteView):
         try:
             wc = Webcam.objects.get(pk=1)
             self.webcam = wc
-            # snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
         except Webcam.DoesNotExist:
             pass
         rv['which_date'] = datetime(y, m, d)
-        # rv['snaps'] = snaps
         rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
 
     def _build_sbh(self, y, m, d):
-        # if snaps is None:
-        #     return
-        dfrom = datetime(y, m, d, 0, 0)
-        dto = datetime(y, m, d, 23, 59)
         sbh = []
         for i in range(0,24):
             hr = datetime(y, m, d, i, 0)
-            sbh.append({"hour": hr, "snaps" : self._find_sbh(y, m, d, i)})
+            snaps = self._find_sbh(y, m, d, i)
+            sbh.append({"hour": hr, "snaps": snaps})
         return sbh
 
     def _find_sbh(self, y, m, d, hr):
@@ -325,7 +320,7 @@ class DayInTheLifeView(WebsiteView):
 
 class AdilHourView(TemplateView):
 
-    template_name = 'www/aidl_hour.html'
+    template_name = 'www/adil_hour.html'
 
     def get_context_data(self, **kwargs):
         rv = super(AdilHourView, self).get_context_data(**kwargs)
@@ -341,6 +336,7 @@ class AdilHourView(TemplateView):
             snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
         except Webcam.DoesNotExist:
             pass
+        rv['STATIC_URL'] = settings.STATIC_URL
         rv['snaps'] = snaps
         return rv
 

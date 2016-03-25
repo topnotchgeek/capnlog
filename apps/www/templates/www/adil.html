@@ -2,15 +2,20 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <h3>{{ page_title }} <span class="small">{{ which_date|date:"M j, Y" }}</span></h3>
+        </div>
+        <div class="col-sm-6">
+            <div class="pull-right">
+                <button id="btn_stop" class="btn btn-default btn-sm">Stop</button>
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="col-sm-2">
         <ul class="nav nav-pills nav-stacked">
     {% for sbh in snaps_by_hour %}
-        {% with cnt=sbh.snaps.count %}
+        {% with cnt=sbh.snaps|length %}
             <li id="hour_{{ sbh.hour|date:"H" }}" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"h A" }} <span class="badge">{{ cnt }}</span></a></li>
         {% endwith %}
     {% endfor %}
@@ -19,8 +24,8 @@
         <div class="col-sm-10">
             <p id="img_desc" class="small"></p>
             <div id="img_div">
-                <img id="cur_img" src="" class="img-responsive"/>
             </div>
+{% comment %}
             <div id="hidden_div" style="display: none">
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps.count %}
@@ -33,6 +38,7 @@
         {% endwith %}
     {% endfor %}
             </div>
+{% endcomment %}
         </div>
     </div>
 
@@ -47,6 +53,10 @@
 
 {% block extra_js %}
     <script type="text/javascript">
+        function on_hour_loaded(resp) {
+            $("#img_div").html(resp);
+        }
+{% comment %}
         var prevDivId = null;
         var imgDict = {};
         var curImgs = null;
@@ -56,7 +66,7 @@
 
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps.count %}
-            imgDict["hour_{{ sbh.hour|date:"H" }}"] = []
+            imgDict["hour_{{ sbh.hour|date:"H" }}"] = [];
             {% if cnt == 0 %}
             {% else %}
                 {% for s in sbh.snaps %}
@@ -95,6 +105,7 @@
             curIndex = curIndex + 1;
             curTimer = setTimeout(next_image, 500);
         }
+{% endcomment %}
     </script>
 {% endblock %}
 
@@ -103,9 +114,15 @@
     $(".nav-hour").click(function(evt) {
         evt.preventDefault();
         var id = $(this).attr('id');
+        if (id.indexOf("hour_" >= 0)) {
+            var hr = id.substring(5);
+            var url = "/adil/{{ which_date.year|stringformat:"04d" }}/{{ which_date.month|stringformat:"02d" }}/{{ which_date.day|stringformat:"02d"  }}/" + hr + "/";
+            ajax_get_html(url, on_hour_loaded, null);
+        }
+{% comment %}
         curImgs = imgDict[id];
         start_show();
-{% comment %}
+
         if (id.indexOf("hour_" >= 0))
             id = id.substring(5);
         var divid = "snaps_" + id;
@@ -115,5 +132,13 @@
         prevDivId = divid;
         $("#"+divid).show();
 {% endcomment %}
+    });
+
+    $("#btn_stop").click(function(evt) {
+        evt.preventDefault();
+        if (curTimer != 0) {
+            clearTimeout(curTimer);
+            curTimer = 0;
+        }
     });
 {% endblock %}

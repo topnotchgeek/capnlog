@@ -1,10 +1,22 @@
     <div class="row">
         <div class="col-sm-12">
-    {% for s in snaps %}
-            <div style="height: 120px; width: 120px; float:right">
-                <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" class="img-responsive"/>
+            <p id="img_desc" class="small"></p>
+            <div id="img_div">
+    {% with first_img=snaps|first %}
+                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" class="img-responsive"/>
+    {% endwith %}
             </div>
+            <div style="display: none">
+    {% for s in snaps %}
+                <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}"/>
     {% endfor %}
+            </div>
         </div>
     </div>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#img_desc").html("Loaded");
+    });
+
+</script>
