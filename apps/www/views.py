@@ -379,8 +379,7 @@ def save_image(d):
         return
     tz = timezone.get_current_timezone()
     n = datetime.now(tz)
-    mdir = os.path.join('%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
-    dir = os.path.join(settings.WEBCAM_IMAGE_PATH,mdir)
+    dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
     if not os.path.exists(dir):
         os.makedirs(dir)
     path = os.path.join(dir, fnm)
@@ -391,6 +390,6 @@ def save_image(d):
     ss = Snapshot()
     ss.webcam = wc
     ss.img_name = fnm
-    ss.img_path = mdir
+    ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
     ss.save()
     return ss
