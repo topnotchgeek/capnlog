@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import json
+
 import markdown
 from django.db import models
 from django.db.models import CharField, TextField, DecimalField, ForeignKey, DateTimeField
@@ -110,12 +112,62 @@ class Webcam(models.Model):
     description = TextField(blank=True, null=True)
     latitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
     longitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
+    schedule = TextField(blank=True, null=True)
 
     def __unicode__(self):
         return '%s' % self.name
 
     def get_absolute_url(self):
         return ''
+
+    # def can_consume(self):
+    #     sch = self.get_schedule()
+    #     if sch is None:
+    #         return settings.NO_SCHEDULE_MEANS_ON
+    #     tz = timezone.get_current_timezone()
+    #     now = datetime.now(tz)
+    #     st = timezone.make_aware(datetime(now.year, now.month, now.day, 0, 0, 0), tz)
+    #     sp = timezone.make_aware(datetime(now.year, now.month, now.day, 23, 59, 59), tz)
+    #     return (now >= st) and (now <= sp)
+
+    def get_schedule(self):
+        if self.schedule is None or len(self.schedule) == 0:
+            return None
+        return json.loads(self.schedule)
+
+    def is_scheduled(self):
+        sch = self.get_schedule()
+        if sch is None:
+            return settings.NO_SCHEDULE_MEANS_ON
+        tz = timezone.get_current_timezone()
+        now = datetime.now(tz)
+        dsch = sch.get('all', None)
+        if dsch is None:
+            dow = now.strftime('%a').lower()
+            dsch = sch.get(dow, None)
+        if dsch is None:
+            return settings.NO_SCHEDULE_MEANS_ON
+        o = dsch.get('off', None)
+        if o:
+            for tms in o:
+                st = datetime.strptime(tms['start'], "%H:%M:%S")
+                et = datetime.strptime(tms['stop'], "%H:%M:%S")
+                if self.time_in_range(now, tz, st, et):
+                    return False
+        o = dsch.get('on', None)
+        if o is None:
+            return settings.NO_SCHEDULE_MEANS_ON
+        for tms in o:
+            st = datetime.strptime(tms['start'], "%H:%M:%S")
+            et = datetime.strptime(tms['stop'], "%H:%M:%S")
+            if self.time_in_range(now, tz, st, et):
+                return True
+        return settings.NO_SCHEDULE_MEANS_ON
+
+    def time_in_range(self, now, tz, st, et):
+        sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
+        ed = timezone.make_aware(datetime(now.year, now.month, now.day, et.hour, et.minute, et.second), tz)
+        return (now >= sd) and (now <= ed)
 
 
 class Snapshot(models.Model):

@@ -368,6 +368,9 @@ def save_image(d):
     except Webcam.DoesNotExist:
         logger.debug('webcam not found: %d' % cid)
         return
+    if not wc.is_scheduled():
+        logger.debug('webcam scheduled off right now')
+        return
     fnm = d['fname'] or None
     img = d['imgdata'] or None
     if fnm is None or img is None:

@@ -115,6 +115,8 @@ AUTH_USER_MODEL = 'auth.User'
 LOGIN_URL = '/login'
 LOGOUT_URL = '/logout'
 
+NO_SCHEDULE_MEANS_ON = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
