@@ -21,23 +21,8 @@
         </ul>
         </div>
         <div class="col-sm-10">
-            <p id="img_desc" class="small"></p>
             <div id="img_div">
             </div>
-{% comment %}
-            <div id="hidden_div" style="display: none">
-    {% for sbh in snaps_by_hour %}
-        {% with cnt=sbh.snaps.count %}
-            {% if cnt == 0 %}
-            {% else %}
-                {% for s in sbh.snaps %}
-                        <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"h:iA" }}" alt="{{ s.ts_create|date:"h:iA" }}" class="img-responsive"/>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    {% endfor %}
-            </div>
-{% endcomment %}
         </div>
     </div>
 
@@ -55,61 +40,10 @@
         function on_hour_loaded(resp) {
             $("#img_div").html(resp);
         }
-{% comment %}
-        var prevDivId = null;
-        var imgDict = {};
-        var curImgs = null;
-        var curIndex = 0;
-        var curTimer = 0;
-        var curLen = 0;
-
-    {% for sbh in snaps_by_hour %}
-        {% with cnt=sbh.snaps.count %}
-            imgDict["hour_{{ sbh.hour|date:"H" }}"] = [];
-            {% if cnt == 0 %}
-            {% else %}
-                {% for s in sbh.snaps %}
-                    imgDict["hour_{{ sbh.hour|date:"H" }}"].push({"title": "{{ s.ts_create|date:"h:iA" }}", "name": "{{ s.img_name }}"});
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        if (curImgs == null && imgDict["hour_{{ sbh.hour|date:"H" }}"].length > 0)
-            curImgs = imgDict["hour_{{ sbh.hour|date:"H" }}"];
-    {% endfor %}
-
-        function start_show() {
-            if (curTimer != 0) {
-                clearTimeout(curTimer);
-                curTimer = 0;
-            }
-            $("#img_desc").html("");
-            curIndex = 0;
-            curLen = 0;
-            if (curImgs == null)
-                return;
-            curLen = curImgs.length;
-            next_image();
-        }
-
-        function next_image() {
-            if (curImgs == null)
-                return;
-            if (curIndex >= curLen)
-                curIndex = 0;
-            var d = curImgs[curIndex];
-            $("#img_desc").html(d['title']);
-            $("#cur_img").attr('src', "{{ STATIC_URL }}img/webcam/" + d['name']);
-            $("#cur_img").attr('title', d['title']);
-            $("#cur_img").attr('alt', d['title']);
-            curIndex = curIndex + 1;
-            curTimer = setTimeout(next_image, 500);
-        }
-{% endcomment %}
     </script>
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
-    prevDivId = null;
     $(".nav-hour").click(function(evt) {
         evt.preventDefault();
         var id = $(this).attr('id');
@@ -117,27 +51,6 @@
             var hr = id.substring(5);
             var url = "/adil/{{ which_date.year|stringformat:"04d" }}/{{ which_date.month|stringformat:"02d" }}/{{ which_date.day|stringformat:"02d"  }}/" + hr + "/";
             ajax_get_html(url, on_hour_loaded, null);
-        }
-{% comment %}
-        curImgs = imgDict[id];
-        start_show();
-
-        if (id.indexOf("hour_" >= 0))
-            id = id.substring(5);
-        var divid = "snaps_" + id;
-        if (prevDivId != null) {
-            $("#"+prevDivId).hide();
-        }
-        prevDivId = divid;
-        $("#"+divid).show();
-{% endcomment %}
-    });
-
-    $("#btn_stop").click(function(evt) {
-        evt.preventDefault();
-        if (curTimer != 0) {
-            clearTimeout(curTimer);
-            curTimer = 0;
         }
     });
 {% endblock %}

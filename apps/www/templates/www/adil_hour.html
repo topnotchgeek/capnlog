@@ -1,17 +1,21 @@
     <div class="row">
-        <div class="col-sm-12">
-            <button id="btn_first" class="btn btn-default btn-sm">First</button>
-            <button id="btn_prev" class="btn btn-default btn-sm">Prev</button>
-            <button id="btn_next" class="btn btn-default btn-sm">Next</button>
-            <button id="btn_last" class="btn btn-default btn-sm">Last</button>
+        <div class="col-sm-6">
+            <p id="img_desc" class="small" style="vertical-align: center"></p>
+        </div>
+        <div class="col-sm-6">
+            <div class="pull-right">
+                <button id="btn_first" class="btn btn-default btn-xs" value="First"><span class="glyphicon glyphicon-fast-backward"/></button>
+                <button id="btn_prev" class="btn btn-default btn-xs" value="Previous"><span class="glyphicon glyphicon-backward"/></button>
+                <button id="btn_next" class="btn btn-default btn-xs" value="Next"><span class="glyphicon glyphicon-forward"/></button>
+                <button id="btn_last" class="btn btn-default btn-xs" value="Last"><span class="glyphicon glyphicon-fast-forward"/></button>
 
-            <button id="btn_play" class="btn btn-default btn-sm">Play</button>
+                <button id="btn_play" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-play"/></button>
+            </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-sm-12">
-            <p id="img_desc" class="small"></p>
             <div id="img_div">
     {% with first_img=snaps|first %}
                 <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"h:iA" }}" alt="{{ first_img.ts_create|date:"h:iA" }}" class="img-responsive"/>
@@ -81,7 +85,7 @@
         }
         var t = selImg.attr('title');
         var s = selImg.attr('src');
-        $("#img_desc").html(t + ": " + curIndex);
+        $("#img_desc").html(t);
         var curImg = $("#cur_img");
         curImg.attr('alt', t);
         curImg.attr('title', t);
@@ -108,7 +112,7 @@
         enableBtn("btn_next", e && curIndex < curLen);
         enableBtn("btn_last", e && curIndex < curLen);
 
-        $("#btn_play").html(isPlaying ? "Stop" : "Play");
+        $("#btn_play").html(isPlaying ? '<span class="glyphicon glyphicon-pause"/>' : '<span class="glyphicon glyphicon-play"/>');
         enableBtn("btn_play", curLen > 0);
     }
 
