@@ -11,16 +11,20 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-2">
-        <ul class="nav nav-pills nav-stacked">
+        <div class="col-sm-12">
+            <div role="navigation">
+                <ul class="nav nav-tabs">
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps|length %}
-            <li id="hour_{{ sbh.hour|date:"H" }}" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"h A" }} <span class="badge">{{ cnt }}</span></a></li>
+                    <li id="hour_{{ sbh.hour|date:"H" }}" role="presentation" class="nav-hour{% if forloop.counter0 == 0 %} active{% endif %}" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"hA" }}</a></li>
         {% endwith %}
     {% endfor %}
-        </ul>
+                </ul>
+            </div>
         </div>
-        <div class="col-sm-10">
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
             <div id="img_div">
             </div>
         </div>
@@ -46,6 +50,8 @@
 {% block jquery_on_doc_ready %}
     $(".nav-hour").click(function(evt) {
         evt.preventDefault();
+        $(".nav-hour").removeClass('active');
+        $(this).addClass('active');
         var id = $(this).attr('id');
         if (id.indexOf("hour_" >= 0)) {
             var hr = id.substring(5);
