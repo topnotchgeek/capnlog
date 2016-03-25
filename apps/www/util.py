@@ -88,17 +88,15 @@ def do_daily(query=None):
             pa.save()
         except KeyError:
             pass
+    return pa
 
 
 def update_schedule():
-    do_daily()
+    pa = do_daily()
+    if pa is None:
+        return;
     tz = timezone.get_current_timezone()
     cur_tm = datetime.now(tz)
-    key = cur_tm.strftime(DATE_KEY_FORMAT)
-    try:
-        pa = WuAstronomy.objects.get(date_key=key)
-    except WuAstronomy.DoesNotExist:
-        return
     try:
         wc = Webcam.objects.get(pk=1)
     except:
@@ -110,3 +108,4 @@ def update_schedule():
     et = datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0, tz) + dlt
     wc.schedule = '{ "all": {"start" : "%s", "stop": "%s"}}' % (st.strftime("%H:%M:%S"), et.strftime("%H:%M:%S"))
     wc.save()
+    return '%s: %s' % (wc, wc.schedule)
