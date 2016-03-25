@@ -333,7 +333,7 @@ class AdilHourView(TemplateView):
             wc = Webcam.objects.get(pk=1)
             dfrom = datetime(y, m, d, h, 0)
             dto = datetime(y, m, d, h, 59)
-            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('-ts_create')
+            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
         except Webcam.DoesNotExist:
             pass
         rv['STATIC_URL'] = settings.STATIC_URL

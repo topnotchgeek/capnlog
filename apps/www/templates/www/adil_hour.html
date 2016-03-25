@@ -1,22 +1,147 @@
     <div class="row">
         <div class="col-sm-12">
+            <button id="btn_first" class="btn btn-default btn-sm">First</button>
+{% comment %}
+            <button id="btn_prev" class="btn btn-default btn-sm">Prev</button>
+            <button id="btn_next" class="btn btn-default btn-sm">Next</button>
+            <button id="btn_last" class="btn btn-default btn-sm">Last</button>
+{% endcomment %}
+            <button id="btn_play" class="btn btn-default btn-sm">Play</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
             <p id="img_desc" class="small"></p>
             <div id="img_div">
     {% with first_img=snaps|first %}
-                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" class="img-responsive"/>
+                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"h:iA" }}" alt="{{ first_img.ts_create|date:"h:iA" }}" class="img-responsive"/>
     {% endwith %}
             </div>
             <div style="display: none">
     {% for s in snaps %}
-                <img src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}"/>
+                <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"h:iA" }}" alt="{{ s.ts_create|date:"h:iA" }}"/>
     {% endfor %}
             </div>
         </div>
     </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $("#img_desc").html("Loaded");
-    });
+    var curIndex = 0;
+    var curTimer = 0;
+    var curLen = {{ snaps.count }};
+    var isPlaying = false;
 
+    function cnclTimer() {
+        if (curTimer != 0) {
+            clearTimeout(curTimer);
+            curTimer = 0;
+        }
+    }
+
+    function firstImg() {
+        curIndex = 0;
+        showImg();
+    }
+
+    function prevImg() {
+        if (curIndex == 0)
+            return;
+        curIndex = curIndex-1;
+        showImg();
+    }
+
+    function nextImg() {
+        if (curIndex > curLen - 1) {
+            isPlaying = false;
+            return;
+        }
+        curIndex = curIndex + 1;
+        showImg();
+    }
+
+    function lastImg() {
+        if (curIndex > curLen -1)
+            return;
+        curIndex = curLen-1;
+        showImg();
+    }
+
+
+    function showImg() {
+        updateUi();
+        cnclTimer();
+        var selImg = $("#img_"+curIndex);
+        if (selImg == null) {
+            return;
+        }
+        console.log('showImg ' + selImg.attr('id'));
+        var t = selImg.attr('title');
+        var s = selImg.attr('src');
+        $("#img_desc").html(t);
+        var curImg = $("#cur_img");
+        curImg.attr('alt', t);
+        curImg.attr('title', t);
+        curImg.attr('src', s);
+        if (isPlaying)
+            curTimer = setTimeout(nextImg, 500);
+    }
+
+    function enableBtn(nm, e) {
+        var ele = $("#"+nm);
+        if (ele == null)
+            return;
+        ele.removeAttr('disabled');
+        if (!e) {
+            ele.attr('disabled', 'disabled');
+        }
+    }
+
+    function updateUi() {
+        console.log('updateUi ' + curLen + ", " + curIndex);
+        enableBtn("btn_first", !isPlaying && curLen > 0 && curIndex > 0);
+{% comment %}
+        enableBtn("btn_prev", curLen > 0 && curIndex > 0);
+        enableBtn("btn_next", curLen > 0 && curIndex < curLen-1);
+        enableBtn("btn_last", curLen > 0 && curIndex < curLen-1);
+{% endcomment %}
+        $("#btn_play").html(isPlaying ? "Stop" : "Play");
+        enableBtn("btn_play", curLen > 0);
+    }
+
+    $(document).ready(function() {
+        $("#btn_first").click(function(evt) {
+            evt.preventDefault();
+            console.log('first clicked');
+            firstImg();
+        });
+{% comment %}
+        $("#btn_prev").click(function(evt) {
+            evt.preventDefault();
+            console.log('prev clicked');
+            prevImg();
+        });
+        $("#btn_next").click(function(evt) {
+            evt.preventDefault();
+            console.log('next clicked');
+            nextImg();
+        });
+        $("#btn_last").click(function(evt) {
+            evt.preventDefault();
+            console.log('last clicked');
+            lastImg();
+        });
+{% endcomment %}
+        $("#btn_play").click(function(evt) {
+            evt.preventDefault();
+            console.log('play clicked');
+            isPlaying = !isPlaying;
+            updateUi();
+            if (isPlaying)
+                showImg();
+            else
+                cnclTimer();
+        });
+    });
+    showImg();
 </script>
