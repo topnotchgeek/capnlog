@@ -51,10 +51,9 @@
     }
 
     function nextImg() {
-        if (curIndex == curLen) {
+        if (curIndex == curLen-1) {
             if (isPlaying) {
                 isPlaying = false;
-                curIndex = curLen-1;
                 showImg();
             }
             return;
@@ -64,7 +63,7 @@
     }
 
     function lastImg() {
-        if (curIndex == curLen)
+        if (curIndex == curLen-1)
             return;
         curIndex = curLen-1;
         showImg();
@@ -72,8 +71,8 @@
 
 
     function showImg() {
-        updateUi();
         cnclTimer();
+        updateUi();
         var sel = "#img_" + curIndex;
         console.log('showImg ' + sel);
         var selImg = $(sel);
