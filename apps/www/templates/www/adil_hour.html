@@ -8,7 +8,7 @@
                 <button id="btn_prev" class="btn btn-default btn-xs" value="Previous"><span class="glyphicon glyphicon-backward"/></button>
                 <button id="btn_next" class="btn btn-default btn-xs" value="Next"><span class="glyphicon glyphicon-forward"/></button>
                 <button id="btn_last" class="btn btn-default btn-xs" value="Last"><span class="glyphicon glyphicon-fast-forward"/></button>
-
+                &nbsp;
                 <button id="btn_play" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-play"/></button>
             </div>
         </div>
@@ -18,12 +18,12 @@
         <div class="col-sm-12">
             <div id="img_div">
     {% with first_img=snaps|first %}
-                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"h:iA" }}" alt="{{ first_img.ts_create|date:"h:iA" }}" class="img-responsive"/>
+                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"M j, Y h:iA" }}" alt="{{ first_img.ts_create|date:"M j, Y h:iA" }}" class="img-responsive"/>
     {% endwith %}
             </div>
             <div style="display: none">
     {% for s in snaps %}
-                <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"h:iA" }}" alt="{{ s.ts_create|date:"h:iA" }}"/>
+                <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{{ s.img_name }}" title="{{ s.ts_create|date:"M j, Y h:iA" }}" alt="{{ s.ts_create|date:"M j, Y h:iA" }}"/>
     {% endfor %}
             </div>
         </div>
