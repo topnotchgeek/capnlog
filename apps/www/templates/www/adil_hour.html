@@ -53,8 +53,8 @@
     function nextImg() {
         if (curIndex > curLen - 1) {
             if (isPlaying) {
-                curIndex = 0;
-                showImg();
+                isPlaying = false;
+                updateUi();
             }
             return;
         }
