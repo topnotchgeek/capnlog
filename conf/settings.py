@@ -117,6 +117,8 @@ LOGOUT_URL = '/logout'
 
 NO_SCHEDULE_MEANS_ON = True
 
+WU_API_KEY = 'e0058761ef7eb08b'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',

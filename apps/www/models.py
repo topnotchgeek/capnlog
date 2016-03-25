@@ -181,3 +181,54 @@ class Snapshot(models.Model):
 
     def get_absolute_url(self):
         return ''
+
+
+class WuAstronomy(models.Model):
+    status = models.SmallIntegerField(default=0, blank=True, null=True)
+    flag = models.SmallIntegerField(default=0, blank=True, null=True)
+    reading_time = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False)
+    date_key = models.CharField(max_length=20, unique=True)
+
+    moon_pct = models.SmallIntegerField(default=-1)
+    moon_age = models.SmallIntegerField(default=-1)
+    moon_phase = models.CharField(max_length=50, blank=True, null=True)
+    moon_hemi = models.CharField(max_length=32, blank=True, null=True)
+    moon_rise = models.TimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True)
+    moon_set = models.TimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True)
+    sun_rise = models.TimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True)
+    sun_set = models.TimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True)
+
+    def _fmt_time(self, val):
+        return val.strftime('%H:%M')
+
+    def __unicode__(self):
+        return 'sun: %s - %s, moon: %s (%d)' % (self._fmt_time(self.sun_rise), self._fmt_time(self.sun_set), self.moon_phase, self.moon_pct)
+
+    def get_daylength(self):
+        if self.sun_rise is None or self.sun_set is None:
+            return None
+        ssr = '2015-01-01 %02d:%02d' % (self.sun_rise.hour, self.sun_rise.minute)
+        sss = '2015-01-01 %02d:%02d' % (self.sun_set.hour, self.sun_set.minute)
+        sr = datetime.strptime(ssr, '%Y-%m-%d %H:%M')
+        ss = datetime.strptime(sss, '%Y-%m-%d %H:%M')
+        dlt = ss - sr
+        m = dlt.seconds / 60
+        h = m / 60
+        m = m % 60
+        return '%d hour%s, %d minute%s' % (h, '' if h == 1 else 's', m, '' if m ==1 else 's')
+
+    def compare(self, other):
+        if other is None:
+            return 0
+        ssr = '2015-01-01 %02d:%02d' % (self.sun_rise.hour, self.sun_rise.minute)
+        sss = '2015-01-01 %02d:%02d' % (self.sun_set.hour, self.sun_set.minute)
+        sr = datetime.strptime(ssr, '%Y-%m-%d %H:%M')
+        ss = datetime.strptime(sss, '%Y-%m-%d %H:%M')
+        sdlt = ss - sr
+
+        osr = '2015-01-01 %02d:%02d' % (other.sun_rise.hour, other.sun_rise.minute)
+        oss = '2015-01-01 %02d:%02d' % (other.sun_set.hour, other.sun_set.minute)
+        sr = datetime.strptime(ssr, '%Y-%m-%d %H:%M')
+        ss = datetime.strptime(sss, '%Y-%m-%d %H:%M')
+        odlt = ss - sr
+        return sdlt.seconds - odlt.seconds
