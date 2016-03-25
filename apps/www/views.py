@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.contrib.auth.views import login, logout
 
 # Create your views here.
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from vanilla import ListView, DetailView, UpdateView, CreateView
@@ -376,7 +377,13 @@ def save_image(d):
     if fnm is None or img is None:
         logger.debug('save_image: bad data')
         return
-    path = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
+    tz = timezone.get_current_timezone()
+    n = datetime.now(tz)
+    mdir = os.path.join('%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
+    dir = os.path.join(settings.WEBCAM_IMAGE_PATH,mdir)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    path = os.path.join(dir, fnm)
     logger.debug('save_image: %s' % path)
     fout = open(path, "wb")
     fout.write(img.decode("base64"))
@@ -384,6 +391,6 @@ def save_image(d):
     ss = Snapshot()
     ss.webcam = wc
     ss.img_name = fnm
-    ss.img_path = settings.WEBCAM_IMAGE_PATH
+    ss.img_path = mdir
     ss.save()
     return ss
