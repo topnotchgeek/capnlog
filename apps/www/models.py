@@ -164,9 +164,9 @@ class Webcam(models.Model):
             et = datetime.strptime(tms['stop'], "%H:%M:%S")
             sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second, tzinfo=tz)
             ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second, tzinfo=tz)
-            if (now < sd) or (now > ed):         # self.time_in_range(now, tz, st, et)
-                return False
-        return settings.NO_SCHEDULE_MEANS_ON
+            if (now >= sd) and (now <= ed):         # self.time_in_range(now, tz, st, et)
+                return True
+        return False
 
     # def time_in_range(self, now, tz, st, et):
     #     sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
