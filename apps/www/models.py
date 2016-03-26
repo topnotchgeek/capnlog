@@ -152,7 +152,9 @@ class Webcam(models.Model):
             for tms in o:
                 st = datetime.strptime(tms['start'], "%H:%M:%S")
                 et = datetime.strptime(tms['stop'], "%H:%M:%S")
-                if self.time_in_range(now, tz, st, et):
+                sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second, tzinfo=tz)
+                ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second, tzinfo=tz)
+                if (now >= sd) and (now <= ed):     # self.time_in_range(now, tz, st, et):
                     return False
         o = dsch.get('on', None)
         if o is None:
@@ -160,14 +162,16 @@ class Webcam(models.Model):
         for tms in o:
             st = datetime.strptime(tms['start'], "%H:%M:%S")
             et = datetime.strptime(tms['stop'], "%H:%M:%S")
-            if self.time_in_range(now, tz, st, et):
-                return True
+            sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second, tzinfo=tz)
+            ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second, tzinfo=tz)
+            if (now < sd) or (now > ed):         # self.time_in_range(now, tz, st, et)
+                return False
         return settings.NO_SCHEDULE_MEANS_ON
 
-    def time_in_range(self, now, tz, st, et):
-        sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
-        ed = timezone.make_aware(datetime(now.year, now.month, now.day, et.hour, et.minute, et.second), tz)
-        return (now >= sd) and (now <= ed)
+    # def time_in_range(self, now, tz, st, et):
+    #     sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
+    #     ed = timezone.make_aware(datetime(now.year, now.month, now.day, et.hour, et.minute, et.second), tz)
+    #     return (now >= sd) and (now <= ed)
 
 
 class Snapshot(models.Model):

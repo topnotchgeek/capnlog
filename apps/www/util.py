@@ -106,6 +106,7 @@ def update_schedule():
     dlt = timedelta(seconds=1800)
     st = datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0, tz) - dlt
     et = datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0, tz) + dlt
-    wc.schedule = '{ "all": {"start" : "%s", "stop": "%s"}}' % (st.strftime("%H:%M:%S"), et.strftime("%H:%M:%S"))
+
+    wc.schedule = '{"all": {"on": [{"start" : "%s", "stop": "%s"}]}}' % (st.strftime("%H:%M:%S"), et.strftime("%H:%M:%S"))
     wc.save()
     return '%s: %s' % (wc, wc.schedule)
