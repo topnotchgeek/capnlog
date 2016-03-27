@@ -107,7 +107,7 @@
 
     function updateUi() {
 {#        console.log('updateUi ' + curLen + ", " + curIndex);#}
-        var e = (!isPlaying && curLen > 0);
+        var e = (!isPlaying && curLen > 0 && nLoaded == curLen);
         enableBtn("btn_first", e && curIndex > 0);
         enableBtn("btn_prev", e && curIndex > 0);
         enableBtn("btn_next", e && curIndex < curLen-1);
