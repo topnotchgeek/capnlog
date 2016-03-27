@@ -21,7 +21,7 @@
                 <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"M j, Y h:iA" }}" alt="{{ first_img.ts_create|date:"M j, Y h:iA" }}" class="img-responsive"/>
     {% endwith %}
             </div>
-            <div style="display: none">
+            <div id="hidden_img_div" style="display: none">
     {% for s in snaps %}
                 <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ s.img_name }}" title="{{ s.ts_create|date:"M j, Y h:iA" }}" alt="{{ s.ts_create|date:"M j, Y h:iA" }}"/>
     {% endfor %}
@@ -33,6 +33,7 @@
     var curIndex = 0;
     var curTimer = 0;
     var curLen = {{ snaps.count }};
+    var nLoaded = 0;
     var isPlaying = false;
 
     function cnclTimer() {
@@ -113,10 +114,17 @@
         enableBtn("btn_last", e && curIndex < curLen-1);
 
         $("#btn_play").html(isPlaying ? '<span class="glyphicon glyphicon-pause"/>' : '<span class="glyphicon glyphicon-play"/>');
-        enableBtn("btn_play", curLen > 0);
+        enableBtn("btn_play", nLoaded == curLen && curLen > 0);
     }
 
     $(document).ready(function() {
+        $("#hidden_img_div img").load(function() {
+            nLoaded = nLoaded + 1;
+            console.log("loaded " + $this.attr('id'));
+            if (nLoaded = curLen) {
+                updateUi();
+            }
+        });
         $("#btn_first").click(function(evt) {
             evt.preventDefault();
             firstImg();
