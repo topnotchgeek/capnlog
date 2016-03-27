@@ -119,6 +119,8 @@
 
     $(document).ready(function() {
         $("#hidden_img_div img").load(function() {
+            if (isPlaying)
+                return;
             nLoaded = nLoaded + 1;
             console.log("loaded " + $(this).attr('id'));
             if (nLoaded = curLen) {
