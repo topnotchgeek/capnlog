@@ -35,7 +35,7 @@
     var curLen = {{ snaps.count }};
     var nLoaded = 0;
     var isPlaying = false;
-    var lastImgId = "img_" + {{ curLen-1 }}
+    var lastImgId = "img_" + ({{ curLen }}-1);
 
     function cnclTimer() {
         if (curTimer != 0) {
