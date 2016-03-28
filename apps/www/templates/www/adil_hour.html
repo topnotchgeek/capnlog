@@ -36,6 +36,7 @@
     var nLoaded = 0;
     var isPlaying = false;
     var lastImgId = "img_" + ({{ curLen }}-1);
+    var allLoaded = false;
 
     function cnclTimer() {
         if (curTimer != 0) {
@@ -108,14 +109,14 @@
 
     function updateUi() {
 {#        console.log('updateUi ' + curLen + ", " + curIndex);#}
-        var e = (!isPlaying && curLen > 0 && nLoaded == curLen);
+        var e = (!isPlaying && curLen > 0 && allLoaded);
         enableBtn("btn_first", e && curIndex > 0);
         enableBtn("btn_prev", e && curIndex > 0);
         enableBtn("btn_next", e && curIndex < curLen-1);
         enableBtn("btn_last", e && curIndex < curLen-1);
 
         $("#btn_play").html(isPlaying ? '<span class="glyphicon glyphicon-pause"/>' : '<span class="glyphicon glyphicon-play"/>');
-        enableBtn("btn_play", nLoaded == curLen && curLen > 0);
+        enableBtn("btn_play", allLoaded && curLen > 0);
     }
 
     $(document).ready(function() {
@@ -126,6 +127,7 @@
             var id = $(this).attr('id')
             console.log("loaded " + id);
             if (id == lastImgId) {
+                allLoaded = true;
                 updateUi();
             }
         });
