@@ -13,6 +13,15 @@
     <div class="row">
         <div class="col-sm-12">
             <div role="navigation">
+                <div class="cal-week">
+    {% for d in all_days %}
+        {% if forloop.counter0 < 7 %}
+                    <div class="cal-hdr {% if d.day.weekday == 5 %}cal-day-last{% endif %}">
+                        {{ d.day|date:"D" }}
+                    </div>
+        {% endif %}
+    {% endfor %}
+                </div>
     {% for d in all_days %}
         {% if d.day.weekday == 6 %}
             {% if forloop.counter0 > 0 %}
@@ -43,6 +52,13 @@
 {% block extra_css %}
     {{ block.super }}
     <style type="text/css">
+        .cal-hdr {
+            min-height: 24px;
+            min-width: 48px;
+            float: left;
+            border-left:1px solid #aaa;
+            padding: 4px;
+        }
         .cal-day {
             min-height: 48px;
             min-width: 48px;

@@ -122,7 +122,7 @@
             if (isPlaying)
                 return;
             nLoaded = nLoaded + 1;
-            console.log("loaded " + $(this).attr('id'));
+            console.log("loaded " + $(this).attr('id')+ "(" + nLoaded + ")");
             if (nLoaded = curLen) {
                 updateUi();
             }

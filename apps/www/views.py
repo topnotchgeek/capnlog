@@ -284,7 +284,7 @@ class AdilHomeView(WebsiteView):
     webcam = None
 
     def get_page_title(self):
-        return 'A Day in the Life'
+        return 'A Day in Pictures'
 
     def get_context_data(self, **kwargs):
         rv = super(AdilHomeView, self).get_context_data(**kwargs)
