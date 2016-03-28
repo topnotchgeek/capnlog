@@ -36,7 +36,7 @@
     var curLen = {{ snaps.count }};
     var isPlaying = false;
     var lastImgId = "img_{{ snaps.count|add:"-1" }}";
-    var allLoaded = false;
+{#    var allLoaded = false;#}
 
     function cnclTimer() {
         if (curTimer != 0) {
@@ -109,14 +109,21 @@
 
     function updateUi() {
 {#        console.log('updateUi ' + curLen + ", " + curIndex);#}
-        var e = (!isPlaying && curLen > 0 && allLoaded);
+        var all = isAllLoaded();
+        var e = (!isPlaying && curLen > 0 && all);
+
         enableBtn("btn_first", e && curIndex > 0);
         enableBtn("btn_prev", e && curIndex > 0);
         enableBtn("btn_next", e && curIndex < curLen-1);
         enableBtn("btn_last", e && curIndex < curLen-1);
 
         $("#btn_play").html(isPlaying ? '<span class="glyphicon glyphicon-pause"/>' : '<span class="glyphicon glyphicon-play"/>');
-        enableBtn("btn_play", allLoaded && curLen > 0);
+        enableBtn("btn_play", all && curLen > 0);
+    }
+
+    function isAllLoaded() {
+        var n = $(".loaded").length;
+        return (n == curLen);
     }
 
     $(document).ready(function() {
@@ -124,14 +131,15 @@
         $("#hidden_img_div img").load(function() {
             if (isPlaying)
                 return;
-            var id = $(this).attr('id')
+            var id = $(this).attr('id');
+            $(this).addClass('loaded');
 {#            console.log("loaded " + id);#}
-            $("#status_txt").html("Loading " + id);
-            if (id == lastImgId) {
-                allLoaded = true;
-                $("#status_txt").html('');
-                updateUi();
-            }
+{#            $("#status_txt").html("Loading " + id);#}
+{#            if (id == lastImgId) {#}
+{#                allLoaded = true;#}
+{#                $("#status_txt").html('');#}
+{#                updateUi();#}
+{#            }#}
         });
         $("#btn_first").click(function(evt) {
             evt.preventDefault();
