@@ -36,6 +36,7 @@
     var curLen = {{ snaps.count }};
     var isPlaying = false;
     var lastImgId = "img_{{ snaps.count|add:"-1" }}";
+    var loadedImgs = 0;
 {#    var allLoaded = false;#}
 
     function cnclTimer() {
@@ -122,8 +123,7 @@
     }
 
     function isAllLoaded() {
-        var n = $(".loaded").length;
-        return (n == curLen);
+        return (loadedImgs == curLen);
     }
 
     $(document).ready(function() {
@@ -132,7 +132,13 @@
             if (isPlaying)
                 return;
             var id = $(this).attr('id');
-            $(this).addClass('loaded');
+            loadedImgs = loadedImgs + 1;
+            if (loadedImgs == curLen) {
+                $("#status_txt").html("");
+                updateUi();
+
+            }
+{#            $(this).addClass('loaded');#}
 {#            console.log("loaded " + id);#}
 {#            $("#status_txt").html("Loading " + id);#}
 {#            if (id == lastImgId) {#}
