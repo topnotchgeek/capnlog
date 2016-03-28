@@ -34,7 +34,6 @@
     var curIndex = 0;
     var curTimer = 0;
     var curLen = {{ snaps.count }};
-    var nLoaded = 0;
     var isPlaying = false;
     var lastImgId = "img_{{ snaps.count|add:"-1" }}";
     var allLoaded = false;
@@ -81,9 +80,9 @@
     function showImg() {
         cnclTimer();
         updateUi();
-        var sel = "#img_" + curIndex;
-        console.log('showImg ' + sel);
-        var selImg = $(sel);
+{#        var sel = "#img_" + curIndex;#}
+{#        console.log('showImg ' + sel);#}
+        var selImg = $("#img_" + curIndex);
         if (selImg == null) {
             return;
         }
@@ -125,9 +124,9 @@
         $("#hidden_img_div img").load(function() {
             if (isPlaying)
                 return;
-{#            nLoaded = nLoaded + 1;#}
             var id = $(this).attr('id')
-            console.log("loaded " + id);
+{#            console.log("loaded " + id);#}
+            $("#status_txt").html("Loading " + id);
             if (id == lastImgId) {
                 allLoaded = true;
                 $("#status_txt").html('');
@@ -153,7 +152,7 @@
 
         $("#btn_play").click(function(evt) {
             evt.preventDefault();
-            console.log('play clicked');
+{#            console.log('play clicked');#}
             isPlaying = !isPlaying;
             updateUi();
             if (isPlaying) {
