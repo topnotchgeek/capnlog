@@ -1,0 +1,37 @@
+    <div class="row">
+        <div id="div_{{ fld1.name }}" class="{{ col1_class|default:"col-sm-6" }} form-group {% if fld1.errors %} has-error{% endif %}">
+            <p>
+                {% if fld1.label %}{{ fld1.label_tag }}{% endif %}
+            {{ fld1 }}</p>
+    {% if fld1.help_text %}
+            <div class="alert-warning text-center">{{ fld1.help_text }}</div>
+    {% endif %}
+    {% if fld1.errors %}
+            <div class="alert-danger text-center">
+        {% for err in fld1.errors %}
+            {% if forloop.counter0 > 0 %}<br/>{% endif %}
+            {{ err }}
+        {% endfor %}
+            </div>
+    {% endif %}
+        </div>
+
+        <div id="div_{{ fld2.name }}" class="{{ col2_class|default:"col-sm-6" }} form-group {% if fld2.errors %} has-error{% endif %}">
+            <p>
+                {% if fld2.label %}{{ fld2.label_tag }}{% endif %}
+            {{ fld2 }}</p>
+    {% if fld2.help_text %}
+            <div class="alert-warning text-center">{{ fld2.help_text }}</div>
+    {% endif %}
+    {% if fld2.errors %}
+            <div class="alert-danger text-center">
+        {% for err in fld2.errors %}
+            {% if forloop.counter0 > 0 %}<br/>{% endif %}
+            {{ err }}
+        {% endfor %}
+            </div>
+    {% endif %}
+        </div>
+
+    </div>
+

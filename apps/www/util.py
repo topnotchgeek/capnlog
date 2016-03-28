@@ -110,3 +110,25 @@ def update_schedule():
     wc.schedule = '{"all": {"on": [{"start" : "%s", "stop": "%s"}]}}' % (st.strftime("%H:%M:%S"), et.strftime("%H:%M:%S"))
     wc.save()
     return '%s: %s' % (wc, wc.schedule)
+
+def first_day_before(dt, dow):
+    rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+    dlt = timedelta(days=1)
+    while rv.weekday() != dow:
+        rv = rv - dlt
+    return rv
+
+def last_day_after(dt, dow):
+    rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+    dlt = timedelta(days=1)
+    while rv.weekday() != dow:
+        rv = rv + dlt
+    return rv
+
+def last_day_of_month(dt):
+    rv = datetime(dt.year, dt.month, 28, tzinfo=timezone.get_current_timezone())
+    dlt = timedelta(days=1)
+    while dt.month == rv.month:
+        rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+        dt = dt + dlt
+    return rv

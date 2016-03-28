@@ -168,6 +168,24 @@ class Webcam(models.Model):
                 return True
         return False
 
+    def months(self, yr=None):
+        if yr is None:
+            return self.snapshot_set.all().datetimes('ts_create', 'month')
+        tz = timezone.get_current_timezone()
+        now = datetime.now(tz)
+        sd = datetime(now.year, now.month, now.day, tzinfo=tz)
+        ed = datetime(now.year, now.month, now.day, tzinfo=tz)
+        return self.snapshot_set.filter(ts_create__range=(sd,ed)).datetimes('ts_create', 'month')
+
+    def years(self):
+        return self.snapshot_set.all().datetimes('ts_create', 'year')
+
+    def snaps_for_day(self, dt):
+        tz = timezone.get_current_timezone()
+        sd = datetime(dt.year, dt.month, dt.day, 0, 0, 0, tzinfo=tz)
+        ed = datetime(dt.year, dt.month, dt.day, 23, 59, 59, tzinfo=tz)
+        return self.snapshot_set.filter(ts_create__range=(sd,ed))
+
     # def time_in_range(self, now, tz, st, et):
     #     sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
     #     ed = timezone.make_aware(datetime(now.year, now.month, now.day, et.hour, et.minute, et.second), tz)

@@ -21,7 +21,7 @@ from conf import settings
 
 from .models import BlogEntry, Webcam, Snapshot
 from .forms import BlogEntryForm
-from .util import FileBasedImageManager
+from .util import *
 
 logger = logging.getLogger(__name__)
 
@@ -275,6 +275,39 @@ class BoatCamView(WebsiteView):
             pass
         rv['auto_refresh'] = True
         rv['auto_refresh_secs'] = 60
+        return rv
+
+
+class AdilHomeView(WebsiteView):
+
+    template_name = 'www/adil_home.html'
+    webcam = None
+
+    def get_page_title(self):
+        return 'A Day in the Life'
+
+    def get_context_data(self, **kwargs):
+        rv = super(AdilHomeView, self).get_context_data(**kwargs)
+        tz = timezone.get_current_timezone()
+        ct = datetime.now(tz)
+        dlt = timedelta(days=1)
+        firstD = first_day_before(datetime(ct.year, ct.month, 1, tzinfo=tz), 6)
+        lastD = last_day_after(last_day_of_month(ct), 5)
+        curD = firstD
+        allD = []
+        try:
+            wc = Webcam.objects.get(pk=1)
+            self.webcam = wc
+            while curD <= lastD:
+                cnt = wc.snaps_for_day(curD).count()
+                allD.append({'day': curD, 'count': cnt })
+                curD = curD + dlt
+        except Webcam.DoesNotExist:
+            pass
+        rv['first_day'] = firstD
+        rv['last_day'] = lastD
+        rv['now'] = ct
+        rv['all_days'] = allD
         return rv
 
 
