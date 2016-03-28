@@ -37,7 +37,6 @@
     var isPlaying = false;
     var lastImgId = "img_{{ snaps.count|add:"-1" }}";
     var loadedImgs = 0;
-{#    var allLoaded = false;#}
 
     function cnclTimer() {
         if (curTimer != 0) {
@@ -81,8 +80,6 @@
     function showImg() {
         cnclTimer();
         updateUi();
-{#        var sel = "#img_" + curIndex;#}
-{#        console.log('showImg ' + sel);#}
         var selImg = $("#img_" + curIndex);
         if (selImg == null) {
             return;
@@ -109,7 +106,6 @@
     }
 
     function updateUi() {
-{#        console.log('updateUi ' + curLen + ", " + curIndex);#}
         var all = isAllLoaded();
         var e = (!isPlaying && curLen > 0 && all);
 
@@ -127,25 +123,19 @@
     }
 
     $(document).ready(function() {
+        console.log("html loaded");
         $("#status_txt").html('Loading images');
         $("#hidden_img_div img").load(function() {
             if (isPlaying)
                 return;
             var id = $(this).attr('id');
+            $("#status_txt").html("Loading " + id);
             loadedImgs = loadedImgs + 1;
             if (loadedImgs == curLen) {
                 $("#status_txt").html("");
                 updateUi();
 
             }
-{#            $(this).addClass('loaded');#}
-{#            console.log("loaded " + id);#}
-{#            $("#status_txt").html("Loading " + id);#}
-{#            if (id == lastImgId) {#}
-{#                allLoaded = true;#}
-{#                $("#status_txt").html('');#}
-{#                updateUi();#}
-{#            }#}
         });
         $("#btn_first").click(function(evt) {
             evt.preventDefault();
@@ -166,7 +156,6 @@
 
         $("#btn_play").click(function(evt) {
             evt.preventDefault();
-{#            console.log('play clicked');#}
             isPlaying = !isPlaying;
             updateUi();
             if (isPlaying) {
