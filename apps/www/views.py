@@ -297,6 +297,7 @@ class DayInTheLifeView(WebsiteView):
             self.webcam = wc
         except Webcam.DoesNotExist:
             pass
+        rv['all_dates'] = wc.snapshot_set.all().datetimes('ts_create', 'day')
         rv['which_date'] = datetime(y, m, d)
         rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
@@ -311,7 +312,7 @@ class DayInTheLifeView(WebsiteView):
 
     def _find_sbh(self, y, m, d, hr):
         dfrom = datetime(y, m, d, hr, 0)
-        dto = datetime(y, m, d, hr, 59)
+        dto = datetime(y, m, d, hr, 59, 59)
         return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
 
     def get(self, request, *args, **kwargs):
@@ -333,7 +334,7 @@ class AdilHourView(TemplateView):
         try:
             wc = Webcam.objects.get(pk=1)
             dfrom = datetime(y, m, d, h, 0)
-            dto = datetime(y, m, d, h, 59)
+            dto = datetime(y, m, d, h, 59, 59)
             snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
         except Webcam.DoesNotExist:
             pass
