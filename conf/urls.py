@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
-    api_post, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView
+    api_post, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -31,10 +31,11 @@ urlpatterns = [
     url(r'^photos$', PhotosView.as_view(), name='photos'),
     url(r'^weather$', WeatherView.as_view(), name='weather'),
     url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
-    url(r'^adil/home$', AdilHomeView.as_view(), name='adil_home'),
+    url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
     url(r'^adil/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayInTheLifeView.as_view(), name='adil'),
     url(r'^adil/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<hour>[0-9]{2})/$', AdilHourView.as_view(), name='adil_hour'),
-    url(r'^api_post$', api_post, name='api_post'),
+    url(r'^api_post/(?P<cam_id>\d+)$', api_post, name='api_post'),
+    url(r'^api_sched/(?P<cam_id>\d+)$', api_is_scheduled, name='is_sched'),
 
     url(r'^login/$', wrapped_login, name='login'),
     url(r'^logout/$', wrapped_logout, name='logout'),

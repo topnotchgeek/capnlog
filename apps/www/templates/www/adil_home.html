@@ -10,6 +10,8 @@
             </div>
         </div>
     </div>
+{% comment %}
+
     <div class="row">
         <div class="col-sm-12">
             <div role="navigation">
@@ -27,25 +29,57 @@
             {% if forloop.counter0 > 0 %}
                 </div>
             {% endif %}
-                <div class="cal cal-week">
+                <div id="calweek_{{ forloop.counter0 }}" class="cal cal-week">
         {% endif %}
-                    <div class="cal cal-day{% if d.day.weekday == 5 %} cal-day-last{% endif %}">
+                    <div id="calday_{{ forloop.counter0 }}" class="cal cal-day{% if d.day.weekday == 5 %} cal-day-last{% endif %}{% if d.count == 0 %} cal-empty{% endif %}">
         {% if d.count > 0 %}
                         <a href="{% url 'adil' d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}">{{ d.day.day }}</a>
+                        <br/><span class="small">{{ d.count }}</span>
         {% else %}
             {{ d.day.day }}
         {% endif %}
                     </div>
     {% endfor %}
-                <div id="whoami" class="cal cal-week"></div>
+                </div>
+
+                <div class="cal cal-week"></div>
             </div>
         </div>
     </div>
+{% endcomment %}
+
 
     <div class="row">
-        <div class="col-sm-12">
+    {% for d in all_days %}
+        {% if forloop.counter0 < 7 %}
+        <div class="col-xs-1">
+            <div class="">{{ d.day|date:"D" }} {{ d.day.weekday }}</div>
+        </div>
+        {% endif %}
+    {% endfor %}
+        <div class="col-xs-5">
         </div>
     </div>
+
+
+    {% for d in all_days %}
+        {% if d.day.weekday == 6 %}
+            {% if forloop.counter0 > 0 %}
+                </div>
+            {% endif %}
+                <div id="calweek_{{ forloop.counter0 }}" class="row">
+        {% endif %}
+                    <div id="calday_{{ forloop.counter0 }}" class="col-xs-1 cal-day brdr-br{% if d.count == 0 %} cal-empty{% endif %}{% if d.day.weekday == 6 %} brdr-l{% endif %}{% if forloop.counter0 < 7 %} brdr-t{% endif %}">
+        {% if d.count > 0 %}
+                        <a href="{% url 'adil' d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}">{{ d.day.day }}</a>
+                        <br/><span class="small">{{ d.count }}</span>
+        {% else %}
+            {{ d.day|date:"D" }}
+        {% endif %}
+                    </div>
+    {% endfor %}
+                </div>
+
 
 {% endblock content %}
 
@@ -54,24 +88,34 @@
     <style type="text/css">
         .cal-hdr {
             min-height: 24px;
-            min-width: 48px;
-            float: left;
-            border-left:1px solid #aaa;
-            padding: 4px;
+{#            float: left;#}
+{#            border-left:1px solid #222;#}
+{#            padding: 4px;#}
         }
         .cal-day {
             min-height: 48px;
-            min-width: 48px;
-            float: left;
-            border-left:1px solid #aaa;
-            padding: 4px;
+{#            padding: 4px;#}
         }
-        .cal-day-last {
-            border-right: 1px solid #aaa;
+
+        .brdr-br {
+            border-bottom:1px solid #222;
+            border-right:1px solid #222;
+        }
+
+        .brdr-t {
+            border-top: 1px solid #222;
+        }
+
+        .brdr-l {
+            border-left: 1px solid #222;
+        }
+
+        .cal-empty {
+            background-color: #aaaaaa;
+{#            padding: 4px;#}
         }
         .cal-week {
-            max-width: 336px;
-            border-top:1px solid #aaa;
+{#            max-width: 336px;#}
             clear: both;
         }
     </style>

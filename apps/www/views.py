@@ -299,8 +299,14 @@ class AdilHomeView(WebsiteView):
             wc = Webcam.objects.get(pk=1)
             self.webcam = wc
             while curD <= lastD:
-                cnt = wc.snaps_for_day(curD).count()
-                allD.append({'day': curD, 'count': cnt })
+                sfd = wc.snaps_for_day(curD)
+                cnt = sfd.count()
+                fst = None
+                lst = None
+                if cnt > 0:
+                    fst = sfd.earliest('ts_create')
+                    lst = sfd.latest('ts_create')
+                allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
                 curD = curD + dlt
         except Webcam.DoesNotExist:
             pass
@@ -317,7 +323,7 @@ class DayInTheLifeView(WebsiteView):
     webcam = None
 
     def get_page_title(self):
-        return 'A Day in the Life'
+        return 'A Day in Pictures'
 
     def get_context_data(self, **kwargs):
         rv = super(DayInTheLifeView, self).get_context_data(**kwargs)
@@ -377,9 +383,15 @@ class AdilHourView(TemplateView):
 
 
 @csrf_exempt
-def api_post(request):
+def api_post(request, *args, **kwargs):
     if request.method == 'POST':
         logger.debug('api_post')
+        cid = kwargs['cam_id']
+        try:
+            wc = Webcam.objects.get(pk=cid)
+        except Webcam.DoesNotExist:
+            logger.debug('webcam not found: %d' % cid)
+            return None
         auth = request.META['HTTP_AUTHORIZATION'] or None
         if auth is None or len(auth) < 10:
             return HttpResponseBadRequest()
@@ -390,27 +402,26 @@ def api_post(request):
         u = tkn.user
         logger.debug('authorized: %s' % u.username)
         d = json.loads(request.body)
-        ss = save_image(d)
-        # d['result'] = "success"
-        # d['user_id'] = u.id
-        return JsonResponse({"result": "success", "user_id": u.id, "img_id": ss.id })
+        ss = save_image(d, wc)
+        if ss:
+            return JsonResponse({"result": "success", "user_id": u.id, "img_id": ss.id })
     return HttpResponseBadRequest()
 
-def save_image(d):
-    cid = d['cam_id'] or 0
-    try:
-        wc = Webcam.objects.get(pk=cid)
-    except Webcam.DoesNotExist:
-        logger.debug('webcam not found: %d' % cid)
-        return
-    if not wc.is_scheduled():
-        logger.debug('webcam scheduled off right now')
-        return
+def save_image(d, wc):
+    # cid = d['cam_id'] or 0
+    # try:
+    #     wc = Webcam.objects.get(pk=cid)
+    # except Webcam.DoesNotExist:
+    #     logger.debug('webcam not found: %d' % cid)
+    #     return None
+    # if not wc.is_scheduled():
+    #     logger.debug('webcam scheduled off right now')
+    #     return None
     fnm = d['fname'] or None
     img = d['imgdata'] or None
     if fnm is None or img is None:
         logger.debug('save_image: bad data')
-        return
+        return None
     tz = timezone.get_current_timezone()
     n = datetime.now(tz)
     dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
@@ -427,3 +438,23 @@ def save_image(d):
     ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
     ss.save()
     return ss
+
+
+@csrf_exempt
+def api_is_scheduled(request, *args, **kwargs):
+    auth = request.META['HTTP_AUTHORIZATION'] or None
+    if auth is None or len(auth) < 10:
+        return HttpResponseBadRequest()
+    try:
+        tkn = Token.objects.get(key=auth[6:])
+    except Token.DoesNotExist:
+        return HttpResponseBadRequest()
+    u = tkn.user
+    logger.debug('authorized: %s' % u.username)
+    cid = int(kwargs['cam_id'])
+    try:
+        wc = Webcam.objects.get(pk=cid)
+    except Webcam.DoesNotExist:
+        logger.debug('webcam not found: %d' % cid)
+        wc = None
+    return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
