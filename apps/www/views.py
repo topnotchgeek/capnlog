@@ -278,6 +278,43 @@ class BoatCamView(WebsiteView):
         return rv
 
 
+class WebcamView(DetailView):
+
+    template_name = 'www/wc.html'
+    context_object_name = 'webcam'
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'slug'
+    model = Webcam
+
+    def get_context_data(self, **kwargs):
+        rv = super(WebcamView, self).get_context_data(**kwargs)
+        rv['STATIC_URL'] = settings.STATIC_URL
+        tz = timezone.get_current_timezone()
+        ct = datetime.now(tz)
+        dlt = timedelta(days=1)
+        firstD = first_day_before(datetime(ct.year, ct.month, 1, tzinfo=tz), 6)
+        lastD = last_day_after(last_day_of_month(ct), 5)
+        curD = firstD
+        allD = []
+        if self.object:
+            while curD <= lastD:
+                sfd = self.object.snaps_for_day(curD)
+                cnt = sfd.count()
+                fst = None
+                lst = None
+                if cnt > 0:
+                    fst = sfd.earliest('ts_create')
+                    lst = sfd.latest('ts_create')
+                allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
+                curD = curD + dlt
+        # rv['webcam'] = self.webcam
+        rv['first_day'] = firstD
+        rv['last_day'] = lastD
+        rv['now'] = ct
+        rv['all_days'] = allD
+        return rv
+
+
 class AdilHomeView(WebsiteView):
 
     template_name = 'www/adil_home.html'
@@ -295,11 +332,11 @@ class AdilHomeView(WebsiteView):
         lastD = last_day_after(last_day_of_month(ct), 5)
         curD = firstD
         allD = []
+        self.webcam = None
         try:
-            wc = Webcam.objects.get(pk=1)
-            self.webcam = wc
+            self.webcam = Webcam.objects.get(pk=1)
             while curD <= lastD:
-                sfd = wc.snaps_for_day(curD)
+                sfd = self.webcam.snaps_for_day(curD)
                 cnt = sfd.count()
                 fst = None
                 lst = None
@@ -310,6 +347,7 @@ class AdilHomeView(WebsiteView):
                 curD = curD + dlt
         except Webcam.DoesNotExist:
             pass
+        rv['webcam'] = self.webcam
         rv['first_day'] = firstD
         rv['last_day'] = lastD
         rv['now'] = ct
@@ -327,16 +365,18 @@ class DayInTheLifeView(WebsiteView):
 
     def get_context_data(self, **kwargs):
         rv = super(DayInTheLifeView, self).get_context_data(**kwargs)
+        cslug = self.kwargs['slug']
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         d = int(self.kwargs['day'])
+        self.webcam = None
         snaps = None
         try:
-            wc = Webcam.objects.get(pk=1)
-            self.webcam = wc
+            self.webcam =  Webcam.objects.get(slug=cslug)
         except Webcam.DoesNotExist:
             pass
-        rv['all_dates'] = wc.snapshot_set.all().datetimes('ts_create', 'day')
+        rv['webcam'] = self.webcam
+        rv['all_dates'] = None if self.webcam is None else self.webcam.snapshot_set.all().datetimes('ts_create', 'day')
         rv['which_date'] = datetime(y, m, d)
         rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
@@ -350,13 +390,11 @@ class DayInTheLifeView(WebsiteView):
         return sbh
 
     def _find_sbh(self, y, m, d, hr):
+        if self.webcam is None:
+            return None
         dfrom = datetime(y, m, d, hr, 0)
         dto = datetime(y, m, d, hr, 59, 59)
         return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
-
-    def get(self, request, *args, **kwargs):
-        rv = super(DayInTheLifeView, self).get(request, *args, **kwargs)
-        return rv
 
 
 class AdilHourView(TemplateView):
@@ -365,13 +403,14 @@ class AdilHourView(TemplateView):
 
     def get_context_data(self, **kwargs):
         rv = super(AdilHourView, self).get_context_data(**kwargs)
+        cslug = self.kwargs['slug']
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         d = int(self.kwargs['day'])
         h = int(self.kwargs['hour'])
         snaps = None
         try:
-            wc = Webcam.objects.get(pk=1)
+            wc = Webcam.objects.get(slug=cslug)
             dfrom = datetime(y, m, d, h, 0)
             dto = datetime(y, m, d, h, 59, 59)
             snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
@@ -440,8 +479,9 @@ def save_image(d, wc):
     return ss
 
 
-@csrf_exempt
 def api_is_scheduled(request, *args, **kwargs):
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
     auth = request.META['HTTP_AUTHORIZATION'] or None
     if auth is None or len(auth) < 10:
         return HttpResponseBadRequest()

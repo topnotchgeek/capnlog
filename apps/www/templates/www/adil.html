@@ -55,7 +55,7 @@
         var id = $(this).attr('id');
         if (id.indexOf("hour_" >= 0)) {
             var hr = id.substring(5);
-            var url = "/adil/{{ which_date.year|stringformat:"04d" }}/{{ which_date.month|stringformat:"02d" }}/{{ which_date.day|stringformat:"02d"  }}/" + hr + "/";
+            var url = "/webcam/{{ webcam.slug }}/{{ which_date.year|stringformat:"04d" }}/{{ which_date.month|stringformat:"02d" }}/{{ which_date.day|stringformat:"02d"  }}/" + hr + "/";
             ajax_get_html(url, on_hour_loaded, null);
         }
     });

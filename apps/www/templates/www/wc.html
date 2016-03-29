@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>{{ webcam.name }}</h3>
+        </div>
+        <div class="col-sm-6">
+            <div class="pull-right">
+            </div>
+        </div>
+    </div>
+{% comment %}
+    <div class="row">
+    {% for d in all_days %}
+        {% if forloop.counter0 < 7 %}
+        <div class="col-xs-1">
+            <div class="">{{ d.day|date:"D" }} {{ d.day.weekday }}</div>
+        </div>
+        {% endif %}
+    {% endfor %}
+        <div class="col-xs-5">
+        </div>
+    </div>
+
+
+    {% for d in all_days %}
+        {% if d.day.weekday == 6 %}
+            {% if forloop.counter0 > 0 %}
+                </div>
+            {% endif %}
+                <div id="calweek_{{ forloop.counter0 }}" class="row">
+        {% endif %}
+                    <div id="calday_{{ forloop.counter0 }}" class="col-xs-1 cal-day brdr-br{% if d.count == 0 %} cal-empty{% endif %}{% if d.day.weekday == 6 %} brdr-l{% endif %}{% if forloop.counter0 < 7 %} brdr-t{% endif %}">
+        {% if d.count > 0 %}
+                        <a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}">{{ d.day.day }}</a>
+                        <br/><span class="small">{{ d.count }}</span>
+        {% else %}
+            {{ d.day|date:"D" }}
+        {% endif %}
+                    </div>
+    {% endfor %}
+                </div>
+
+{% endcomment %}
+        <table id="tbl_cal" class="table table-striped" style="width:91%">
+            <thead>
+                <tr>
+    {% for d in all_days %}
+        {% if forloop.counter0 < 7 %}
+        <th style="width:13%; text-align: center">{{ d.day|date:"D" }}</th>
+        {% endif %}
+    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+    {% for d in all_days %}
+        {% if d.day.weekday == 6 %}
+            {% if forloop.counter0 > 0 %}
+                </tr>
+            {% endif %}
+                <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
+        {% endif %}
+                    <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
+                        <div style="min-height:64px;">
+        {% if d.count > 0 %}
+                        <a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}">{{ d.day.day }}</a>
+                        <br/><span class="small">{{ d.count }}</span>
+        {% else %}
+            {{ d.day.day }}
+        {% endif %}
+                        </div>
+                    </td>
+    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+{% endblock content %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style type="text/css">
+        .cal-hdr {
+            min-height: 24px;
+{#            float: left;#}
+{#            border-left:1px solid #222;#}
+{#            padding: 4px;#}
+        }
+        .cal-day {
+            min-height: 48px;
+{#            padding: 4px;#}
+        }
+
+        .brdr-br {
+            border-bottom:1px solid #222;
+            border-right:1px solid #222;
+        }
+
+        .brdr-t {
+            border-top: 1px solid #222;
+        }
+
+        .brdr-l {
+            border-left: 1px solid #222;
+        }
+
+        .cal-empty {
+            background-color: #aaaaaa;
+{#            padding: 4px;#}
+        }
+        .cal-week {
+{#            max-width: 336px;#}
+            clear: both;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+
+{% block jquery_on_doc_ready %}
+{% endblock %}

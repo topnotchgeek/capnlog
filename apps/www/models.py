@@ -113,6 +113,9 @@ class Webcam(models.Model):
     latitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
     longitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
     schedule = TextField(blank=True, null=True)
+    slug = CharField(max_length=100, unique=True)
+
+    url_name = 'webcam'
 
     def __unicode__(self):
         return '%s' % self.name
@@ -185,6 +188,23 @@ class Webcam(models.Model):
         sd = datetime(dt.year, dt.month, dt.day, 0, 0, 0, tzinfo=tz)
         ed = datetime(dt.year, dt.month, dt.day, 23, 59, 59, tzinfo=tz)
         return self.snapshot_set.filter(ts_create__range=(sd,ed))
+
+    def get_url_kwargs(self, **kwargs):
+        kwargs.update(getattr(self, 'url_kwargs', {}))
+        return kwargs
+
+    @models.permalink
+    def get_absolute_url(self):
+        url_kwargs = self.get_url_kwargs(slug=self.slug)
+        return (self.url_name, (), url_kwargs)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not self.slug:
+            s = slugify(self.slug_source)
+            if len(s) > 50:
+                s = s[:50]
+            self.slug = s
+        super(Webcam, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     # def time_in_range(self, now, tz, st, et):
     #     sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
