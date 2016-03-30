@@ -365,6 +365,7 @@ class DayInTheLifeView(WebsiteView):
 
     def get_context_data(self, **kwargs):
         rv = super(DayInTheLifeView, self).get_context_data(**kwargs)
+        tz = timezone.get_current_timezone()
         cslug = self.kwargs['slug']
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
@@ -377,7 +378,7 @@ class DayInTheLifeView(WebsiteView):
             pass
         rv['webcam'] = self.webcam
         rv['all_dates'] = None if self.webcam is None else self.webcam.snapshot_set.all().datetimes('ts_create', 'day')
-        rv['which_date'] = datetime(y, m, d)
+        rv['which_date'] = timezone.make_aware(datetime(y, m, d),tz)
         rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
 
@@ -385,16 +386,9 @@ class DayInTheLifeView(WebsiteView):
         sbh = []
         for i in range(0,24):
             hr = datetime(y, m, d, i, 0)
-            snaps = self._find_sbh(y, m, d, i)
+            snaps = self.webcam.snaps_for_hour(y, m, d, i)
             sbh.append({"hour": hr, "snaps": snaps})
         return sbh
-
-    def _find_sbh(self, y, m, d, hr):
-        if self.webcam is None:
-            return None
-        dfrom = datetime(y, m, d, hr, 0)
-        dto = datetime(y, m, d, hr, 59, 59)
-        return self.webcam.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
 
 
 class AdilHourView(TemplateView):
@@ -411,9 +405,7 @@ class AdilHourView(TemplateView):
         snaps = None
         try:
             wc = Webcam.objects.get(slug=cslug)
-            dfrom = datetime(y, m, d, h, 0)
-            dto = datetime(y, m, d, h, 59, 59)
-            snaps = wc.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
+            snaps = wc.snaps_for_hour(y, m, d, h)
         except Webcam.DoesNotExist:
             pass
         rv['STATIC_URL'] = settings.STATIC_URL

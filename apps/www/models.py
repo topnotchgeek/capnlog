@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 import json
+import logging
+import os
 
 import markdown
 from django.db import models
@@ -10,6 +12,9 @@ from django.utils.text import slugify
 from datetime import datetime
 
 from conf import settings
+
+logger = logging.getLogger('www')
+
 
 # Create your models here.
 class Permalinkable(models.Model):
@@ -123,16 +128,6 @@ class Webcam(models.Model):
     def get_absolute_url(self):
         return ''
 
-    # def can_consume(self):
-    #     sch = self.get_schedule()
-    #     if sch is None:
-    #         return settings.NO_SCHEDULE_MEANS_ON
-    #     tz = timezone.get_current_timezone()
-    #     now = datetime.now(tz)
-    #     st = timezone.make_aware(datetime(now.year, now.month, now.day, 0, 0, 0), tz)
-    #     sp = timezone.make_aware(datetime(now.year, now.month, now.day, 23, 59, 59), tz)
-    #     return (now >= st) and (now <= sp)
-
     def get_schedule(self):
         if self.schedule is None or len(self.schedule) == 0:
             return None
@@ -144,7 +139,6 @@ class Webcam(models.Model):
             return settings.NO_SCHEDULE_MEANS_ON
         now = datetime.now()
         dsch = sch.get('all', None)
-        tmfmt = "%H:%M:%S"
         if dsch is None:
             dow = now.strftime('%a').lower()
             dsch = sch.get(dow, None)
@@ -153,41 +147,50 @@ class Webcam(models.Model):
         o = dsch.get('off', None)
         if o:
             for tms in o:
-                st = datetime.strptime(tms['start'], tmfmt)
-                et = datetime.strptime(tms['stop'], tmfmt)
-                sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second)
-                ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second)
-                if (now >= sd) and (now <= ed):
+                if self.time_in_range(now, tms):
                     return False
         o = dsch.get('on', None)
         if o is None:
             return settings.NO_SCHEDULE_MEANS_ON
         for tms in o:
-            st = datetime.strptime(tms['start'], tmfmt)
-            et = datetime.strptime(tms['stop'], tmfmt)
-            sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second)
-            ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second)
-            if (now >= sd) and (now <= ed):
+            if self.time_in_range(now, tms):
                 return True
         return False
 
-    def months(self, yr=None):
+    def time_in_range(self, now, tms):
+        tmfmt = "%H:%M:%S"
+        st = datetime.strptime(tms['start'], tmfmt)
+        et = datetime.strptime(tms['stop'], tmfmt)
+        sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second)
+        ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second)
+        return (now >= sd) and (now <= ed)
+
+    def months_with_snaps(self, yr=None):
         if yr is None:
             return self.snapshot_set.all().datetimes('ts_create', 'month')
         tz = timezone.get_current_timezone()
-        now = datetime.now(tz)
-        sd = datetime(now.year, now.month, now.day, tzinfo=tz)
-        ed = datetime(now.year, now.month, now.day, tzinfo=tz)
+        now = timezone.make_aware(datetime.now(),tz)
+        sd = timezone.make_aware(datetime(now.year, now.month, now.day),tz)
+        ed = timezone.make_aware(datetime(now.year, now.month, now.day),tz)
         return self.snapshot_set.filter(ts_create__range=(sd,ed)).datetimes('ts_create', 'month')
 
-    def years(self):
+    def years_with_snaps(self):
         return self.snapshot_set.all().datetimes('ts_create', 'year')
 
     def snaps_for_day(self, dt):
         tz = timezone.get_current_timezone()
-        sd = datetime(dt.year, dt.month, dt.day, 0, 0, 0, tzinfo=tz)
-        ed = datetime(dt.year, dt.month, dt.day, 23, 59, 59, tzinfo=tz)
+        sd = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 0, 0, 0),tz)
+        ed = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 23, 59, 59),tz)
         return self.snapshot_set.filter(ts_create__range=(sd,ed))
+
+    def snaps_for_hour(self, y, m, d, hr):
+        tz = timezone.get_current_timezone()
+        dfrom = timezone.make_aware(datetime(y, m, d, hr, 0),tz)
+        dto = timezone.make_aware(datetime(y, m, d, hr, 59, 59),tz)
+        return self.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
+
+    def snaps_for_fname(self, fnm):
+        return self.snapshot_set.filter(img_name__contains=fnm)
 
     def get_url_kwargs(self, **kwargs):
         kwargs.update(getattr(self, 'url_kwargs', {}))
@@ -206,11 +209,6 @@ class Webcam(models.Model):
             self.slug = s
         super(Webcam, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
-    # def time_in_range(self, now, tz, st, et):
-    #     sd = timezone.make_aware(datetime(now.year, now.month, now.day, st.hour, st.minute, st.second), tz)
-    #     ed = timezone.make_aware(datetime(now.year, now.month, now.day, et.hour, et.minute, et.second), tz)
-    #     return (now >= sd) and (now <= ed)
-
 
 class Snapshot(models.Model):
     webcam = ForeignKey(Webcam)
@@ -223,6 +221,13 @@ class Snapshot(models.Model):
 
     def get_absolute_url(self):
         return ''
+
+    def delete(self, using=None, keep_parents=False):
+        fnm = os.path.join(settings.WEBCAM_IMAGE_PATH, self.img_name)
+        if os.path.exists(fnm):
+            logger.debug('deleting %s' % fnm)
+            os.remove(fnm)
+        super(Snapshot, self).delete(using, keep_parents)
 
 
 class WuAstronomy(models.Model):
