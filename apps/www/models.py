@@ -13,7 +13,7 @@ from datetime import datetime
 
 from conf import settings
 
-logger = logging.getLogger('www')
+logger = logging.getLogger(__name__)
 
 
 # Create your models here.
