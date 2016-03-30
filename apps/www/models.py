@@ -142,9 +142,9 @@ class Webcam(models.Model):
         sch = self.get_schedule()
         if sch is None:
             return settings.NO_SCHEDULE_MEANS_ON
-        tz = timezone.get_current_timezone()
-        now = datetime.now(tz)
+        now = datetime.now()
         dsch = sch.get('all', None)
+        tmfmt = "%H:%M:%S"
         if dsch is None:
             dow = now.strftime('%a').lower()
             dsch = sch.get(dow, None)
@@ -153,21 +153,21 @@ class Webcam(models.Model):
         o = dsch.get('off', None)
         if o:
             for tms in o:
-                st = datetime.strptime(tms['start'], "%H:%M:%S")
-                et = datetime.strptime(tms['stop'], "%H:%M:%S")
-                sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second, tzinfo=tz)
-                ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second, tzinfo=tz)
-                if (now >= sd) and (now <= ed):     # self.time_in_range(now, tz, st, et):
+                st = datetime.strptime(tms['start'], tmfmt)
+                et = datetime.strptime(tms['stop'], tmfmt)
+                sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second)
+                ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second)
+                if (now >= sd) and (now <= ed):
                     return False
         o = dsch.get('on', None)
         if o is None:
             return settings.NO_SCHEDULE_MEANS_ON
         for tms in o:
-            st = datetime.strptime(tms['start'], "%H:%M:%S")
-            et = datetime.strptime(tms['stop'], "%H:%M:%S")
-            sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second, tzinfo=tz)
-            ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second, tzinfo=tz)
-            if (now >= sd) and (now <= ed):         # self.time_in_range(now, tz, st, et)
+            st = datetime.strptime(tms['start'], tmfmt)
+            et = datetime.strptime(tms['stop'], tmfmt)
+            sd = datetime(now.year, now.month, now.day, st.hour, st.minute, st.second)
+            ed = datetime(now.year, now.month, now.day, et.hour, et.minute, et.second)
+            if (now >= sd) and (now <= ed):
                 return True
         return False
 
