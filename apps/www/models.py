@@ -223,7 +223,9 @@ class Snapshot(models.Model):
         return ''
 
     def delete(self, using=None, keep_parents=False):
-        fnm = os.path.join(settings.WEBCAM_IMAGE_PATH, self.img_name)
+        fnm = self.img_name if len(self.img_path) == 0 else os.path.join(self.img_path, self.img_name)
+        if not fnm.startswith(settings.WEBCAM_IMAGE_PATH):
+            fnm = os.path.join(settings.WEBCAM_IMAGE_PATH, fnm)
         if os.path.exists(fnm):
             logger.debug('deleting %s' % fnm)
             os.remove(fnm)
