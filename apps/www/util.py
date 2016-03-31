@@ -103,9 +103,8 @@ def update_schedule():
         return
     sr = pa.sun_rise
     ss = pa.sun_set
-    dlt = timedelta(seconds=1800)
-    st = datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0, tz) - dlt
-    et = datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0, tz) + dlt
+    st = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0),tz) - timedelta(seconds=3600)
+    et = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0), tz) + timedelta(seconds=10800)
 
     wc.schedule = '{"all": {"on": [{"start" : "%s", "stop": "%s"}]}}' % (st.strftime("%H:%M:%S"), et.strftime("%H:%M:%S"))
     wc.save()
