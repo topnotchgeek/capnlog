@@ -19,12 +19,12 @@
         <div class="col-sm-12">
             <div id="img_div">
     {% with first_img=snaps|first %}
-                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"M j, Y h:iA" }}{% if first_img.img_opts %} {{ first_img.img_opts.image_effect }}{% endif %}" alt="{{ first_img.ts_create|date:"M j, Y h:iA" }}" class="img-responsive"/>
+                <img id="cur_img" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ first_img.img_name }}" title="{{ first_img.ts_create|date:"M j, Y h:iA" }} {{ first_img.image_effect }}" alt="{{ first_img.ts_create|date:"M j, Y h:iA" }}" class="img-responsive"/>
     {% endwith %}
             </div>
             <div id="hidden_img_div" style="display: none">
     {% for s in snaps %}
-                <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ s.img_name }}" title="{{ s.ts_create|date:"M j, Y h:iA" }}{% if s.img_opts %} {{ s.img_opts.image_effect }}{% endif %}" alt="{{ s.ts_create|date:"M j, Y h:iA" }}"/>
+                <img id="img_{{ forloop.counter0 }}" src="{{ STATIC_URL }}img/webcam/{% if s.img_path %}{{ s.img_path }}/{% endif %}{{ s.img_name }}" title="{{ s.ts_create|date:"M j, Y h:iA" }} {{ s.image_effect }}" alt="{{ s.ts_create|date:"M j, Y h:iA" }}"/>
     {% endfor %}
             </div>
         </div>

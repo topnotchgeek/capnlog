@@ -232,6 +232,13 @@ class Snapshot(models.Model):
             os.remove(fnm)
         super(Snapshot, self).delete(using, keep_parents)
 
+    def image_effect(self):
+        if self.img_opts:
+            j = json.loads(self.img_opts)
+            if j.has_key('image_effect'):
+                return j['image_effect']
+        return None
+
 
 class WuAstronomy(models.Model):
     status = models.SmallIntegerField(default=0, blank=True, null=True)
