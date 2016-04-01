@@ -215,6 +215,7 @@ class Snapshot(models.Model):
     ts_create = DateTimeField(auto_created=True, auto_now_add=True)
     img_name = CharField(max_length=255, blank=True, null=True)
     img_path = CharField(max_length=1024, blank=True, null=True)
+    img_opts = CharField(max_length=1024, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return '%s from %s' % (self.img_name, self.webcam.name)

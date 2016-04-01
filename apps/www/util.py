@@ -54,7 +54,7 @@ def do_daily(query=None):
     if query is None:
         query = DEF_QUERY
     tz = timezone.get_current_timezone()
-    cur_tm = datetime.now(tz)
+    cur_tm = timezone.make_aware(datetime.now(), tz)
     key = cur_tm.strftime(DATE_KEY_FORMAT)
     try:
         pa = WuAstronomy.objects.get(date_key=key)
@@ -67,7 +67,7 @@ def do_daily(query=None):
             moon = a.get(WUKEY_MOON, None)
             sun = a.get(WUKEY_SUN, None)
             pa = WuAstronomy()
-            pa.reading_time = timezone.make_naive(cur_tm, tz)
+            pa.reading_time = cur_tm
             pa.date_key = key
             pa.moon_age = moon[WUKEY_MOON_AGE] or 0
             pa.moon_phase = moon[WUKEY_MOON_PHASE] or ''
@@ -96,7 +96,7 @@ def update_schedule():
     if pa is None:
         return;
     tz = timezone.get_current_timezone()
-    cur_tm = datetime.now(tz)
+    cur_tm = timezone.make_aware(datetime.now(), tz)
     try:
         wc = Webcam.objects.get(pk=1)
     except:
@@ -111,23 +111,26 @@ def update_schedule():
     return '%s: %s' % (wc, wc.schedule)
 
 def first_day_before(dt, dow):
-    rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+    tz = timezone.get_current_timezone()
+    rv = timezone.make_aware(datetime(dt.year, dt.month, dt.day), tz)
     dlt = timedelta(days=1)
     while rv.weekday() != dow:
         rv = rv - dlt
     return rv
 
 def last_day_after(dt, dow):
-    rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+    tz = timezone.get_current_timezone()
+    rv = timezone.make_aware(datetime(dt.year, dt.month, dt.day), tz)
     dlt = timedelta(days=1)
     while rv.weekday() != dow:
         rv = rv + dlt
     return rv
 
 def last_day_of_month(dt):
-    rv = datetime(dt.year, dt.month, 28, tzinfo=timezone.get_current_timezone())
+    tz = timezone.get_current_timezone()
+    rv = timezone.make_aware(datetime(dt.year, dt.month, 28), tz)
     dlt = timedelta(days=1)
     while dt.month == rv.month:
-        rv = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.get_current_timezone())
+        rv = timezone.make_aware(datetime(dt.year, dt.month, dt.day), tz)
         dt = dt + dlt
     return rv

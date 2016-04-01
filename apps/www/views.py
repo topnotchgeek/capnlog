@@ -448,8 +448,9 @@ def save_image(d, wc):
     # if not wc.is_scheduled():
     #     logger.debug('webcam scheduled off right now')
     #     return None
-    fnm = d['fname'] or None
-    img = d['imgdata'] or None
+    fnm = d.get('fname', None)
+    img = d.get('imgdata', None)
+    opts = d.get('img_opts', None)
     if fnm is None or img is None:
         logger.debug('save_image: bad data')
         return None
@@ -467,6 +468,8 @@ def save_image(d, wc):
     ss.webcam = wc
     ss.img_name = fnm
     ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
+    if opts:
+        ss.img_opts = json.dumps(opts)
     ss.save()
     return ss
 
