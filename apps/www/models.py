@@ -237,7 +237,7 @@ class Snapshot(models.Model):
             j = json.loads(self.img_opts)
             if j.has_key('image_effect'):
                 return j['image_effect']
-        return None
+        return ''
 
 
 class WuAstronomy(models.Model):
