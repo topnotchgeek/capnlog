@@ -128,7 +128,6 @@
             if (isPlaying)
                 return;
             var id = $(this).attr('id');
-            $("#status_txt").html("Loading " + id);
             loadedImgs = loadedImgs + 1;
             if (loadedImgs == curLen) {
                 $("#status_txt").html("");
@@ -167,5 +166,6 @@
                 cnclTimer();
         });
     });
+    $("#status_txt").html("Loading images");
     showImg();
 </script>
