@@ -314,6 +314,47 @@ class WebcamView(DetailView):
         rv['all_days'] = allD
         return rv
 
+class WcMonthView(DetailView):
+
+    template_name = 'www/wc.html'
+    context_object_name = 'webcam'
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'slug'
+    model = Webcam
+
+    def get_context_data(self, **kwargs):
+        rv = super(WcMonthView, self).get_context_data(**kwargs)
+        rv['STATIC_URL'] = settings.STATIC_URL
+        y = int(self.kwargs['year'])
+        m = int(self.kwargs['month'])
+        tz = timezone.get_current_timezone()
+        ct = timezone.make_aware(datetime(y, m, 1), tz)
+        dlt = timedelta(days=1)
+        firstD = first_day_before(timezone.make_aware(datetime(y, m, 1), tz), 6)
+        lastD = last_day_after(last_day_of_month(ct), 5)
+        curD = firstD
+        allD = []
+        if self.object:
+            rv['page_title'] = '%s - %s' % (self.object.name, ct.strftime('%b %Y'))
+            while curD <= lastD:
+                sfd = self.object.snaps_for_day(curD)
+                cnt = sfd.count()
+                fst = None
+                lst = None
+                if cnt > 0:
+                    fst = sfd.earliest('ts_create')
+                    lst = sfd.latest('ts_create')
+                allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
+                curD = curD + dlt
+        # rv['webcam'] = self.webcam
+        rv['prev_month'] = firstD - timedelta(days=1)
+        rv['next_month'] = lastD + timedelta(days=1)
+        rv['first_day'] = firstD
+        rv['last_day'] = lastD
+        rv['now'] = ct
+        rv['all_days'] = allD
+        return rv
+
 
 class AdilHomeView(WebsiteView):
 

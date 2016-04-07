@@ -2,11 +2,23 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-6">
-            <h3>{{ webcam.name }} <span class="small">{{ now|date:"M Y" }}</span></h3>
+        <div class="col-sm-4">
+            <div class="" style="padding-top: 16px;">
+    {% if prev_month %}
+                <a href="{% url 'wc_month' webcam.slug prev_month.year|stringformat:"04d" prev_month.month|stringformat:"02d" %}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_month|date:"M" }}</a>
+    {% endif %}
+            </div>
         </div>
-        <div class="col-sm-6">
-            <div class="pull-right">
+        <div class="col-sm-4">
+            <div class="center-block">
+                <h3>{{ webcam.name }} <span class="small">{{ now|date:"M Y" }}</span></h3>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="pull-right" style="padding-top: 16px; padding-right: 104px;">
+    {% if next_month %}
+                <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="btn btn-sm btn-default">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
+    {% endif %}
             </div>
         </div>
     </div>
@@ -32,10 +44,10 @@
                     <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
             {% endif %}
                         <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
-                            <div style="min-height:64px;">
+                            <div style="min-height:48px;">
             {% if d.count > 0 %}
-                            <a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}">{{ d.day.day }}</a>
-                            <br/><span class="small">{{ d.count }}</span>
+                            {{ d.day.day }}
+                            <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}<a>
             {% else %}
                 {{ d.day.day }}
             {% endif %}
