@@ -33,8 +33,8 @@ urlpatterns = [
     url(r'^weather$', WeatherView.as_view(), name='weather'),
     url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
     url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
-    url(r'^api_post/(?P<cam_id>\d+)$', api_post, name='api_post'),
-    url(r'^api_sched/(?P<cam_id>\d+)$', api_is_scheduled, name='is_sched'),
+    url(r'^api_post/(?P<slug>[-\w]+)/$', api_post, name='api_post'),
+    url(r'^api_sched/(?P<slug>[-\w]+)/$', api_is_scheduled, name='is_sched'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayInTheLifeView.as_view(), name='adil'),

@@ -417,11 +417,11 @@ class AdilHourView(TemplateView):
 def api_post(request, *args, **kwargs):
     if request.method == 'POST':
         logger.debug('api_post')
-        cid = kwargs['cam_id']
+        slg = kwargs['slug']
         try:
-            wc = Webcam.objects.get(pk=cid)
+            wc = Webcam.objects.get(slug=slg)
         except Webcam.DoesNotExist:
-            logger.debug('webcam not found: %d' % cid)
+            logger.debug('webcam not found: %d' % slg)
             return None
         auth = request.META['HTTP_AUTHORIZATION'] or None
         if auth is None or len(auth) < 10:
@@ -486,10 +486,10 @@ def api_is_scheduled(request, *args, **kwargs):
         return HttpResponseBadRequest()
     u = tkn.user
     logger.debug('authorized: %s' % u.username)
-    cid = int(kwargs['cam_id'])
+    slg = kwargs['slug']
     try:
-        wc = Webcam.objects.get(pk=cid)
+        wc = Webcam.objects.get(slug=slg)
     except Webcam.DoesNotExist:
-        logger.debug('webcam not found: %d' % cid)
+        logger.debug('webcam not found: %s' % slg)
         wc = None
     return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
