@@ -15,7 +15,7 @@
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="pull-right" style="padding-top: 16px; padding-right: 104px;">
+            <div class="pull-right" style="padding-top: 16px; padding-right: 0px;">
     {% if next_month %}
                 <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="btn btn-sm btn-default">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
     {% endif %}
@@ -24,13 +24,15 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
-            <table id="tbl_cal" class="table table-bordered" style="width:91%">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-10">
+            <table id="tbl_cal" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
         {% for d in all_days %}
             {% if forloop.counter0 < 7 %}
-            <th style="width:13%; text-align: center">{{ d.day|date:"D" }}</th>
+            <th style="width:14%; text-align: center">{{ d.day|date:"D" }}</th>
             {% endif %}
         {% endfor %}
                     </tr>
@@ -57,6 +59,8 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="col-sm-1">
         </div>
     </div>
 {% endblock content %}
