@@ -9,8 +9,8 @@
 
 {% block bootstrap_css %}
     	<!-- Latest compiled and minified Boostrap CSS -->
-    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.css">
-    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.css">
+    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/{{ BOOTSTRAP_VERSION }}/css/bootstrap.css">
+    	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/{{ BOOTSTRAP_VERSION }}/css/bootstrap-theme.css">
 {% endblock bootstrap_css %}
 
 {% block extra_css %}
@@ -93,8 +93,8 @@
 {% endblock modal %}
 
 {% block bootstrap_js %}
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
-    	<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/{{ JQUERY_VERSION }}/jquery.js"></script>
+    	<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/{{ BOOTSTRAP_VERSION }}/js/bootstrap.min.js"></script>
 {% endblock bootstrap_js %}
 
 {% block extra_js %}

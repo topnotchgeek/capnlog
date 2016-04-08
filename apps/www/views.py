@@ -1,25 +1,18 @@
-import json
 import logging
-import os
 
-from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
 from django.contrib.auth.views import login, logout
+from django.core.urlresolvers import reverse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
 # Create your views here.
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from vanilla import ListView, DetailView, UpdateView, CreateView
 from vanilla.views import TemplateView
 
-from conf import settings
-
-from .models import BlogEntry, Webcam, Snapshot
+from .models import BlogEntry, Snapshot
 from .forms import BlogEntryForm
 from .util import *
 
@@ -30,7 +23,6 @@ def wrapped_login(request):
 #    ctx = _build_context(request, 'Login')
     ctx = {}
     ctx['page_title'] = 'Login'
-    ctx['STATIC_URL'] = settings.STATIC_URL
 #    cart = get_cart(request, False)
     referer = request.META.get('HTTP_REFERER', None)
     if referer:
@@ -68,7 +60,6 @@ def wrapped_login(request):
 def wrapped_logout(request):
     ctx = {}
     ctx['page_title'] = 'Logged Out'
-    ctx['STATIC_URL'] = settings.STATIC_URL
     resp = logout(request, extra_context=ctx)
     return resp
 
@@ -96,7 +87,6 @@ class WebsiteView(TemplateView):
     def get_context_data(self, **kwargs):
         rv = super(WebsiteView, self).get_context_data(**kwargs)
         rv['page_title'] = self.get_page_title()
-        rv['STATIC_URL'] = settings.STATIC_URL
         return rv
 
 
@@ -131,7 +121,7 @@ class BlogView(ListView):
         rv['onboard'] = dlt.days > 0
         rv['days_aboard'] = abs(dlt.days)
         rv['page_title'] = 'Captains Log'
-        rv['STATIC_URL'] = settings.STATIC_URL
+        # rv['STATIC_URL'] = settings.STATIC_URL
         try:
             r = BlogEntry.objects.order_by('-create_time')[0]
         except IndexError:
@@ -155,7 +145,7 @@ class BlogDetailView(DetailView):
         fbim = FileBasedImageManager(settings.IMAGE_DIR, '*.jpg')
         # now = datetime.now()
         rv['random_img'] = fbim.get_random_image()
-        rv['STATIC_URL'] = settings.STATIC_URL
+        # rv['STATIC_URL'] = settings.STATIC_URL
         nxt = None
         prv = None
         if self.object:
@@ -186,7 +176,6 @@ class BlogEditView(LoginRequiredMixin, UpdateView):
         rv = super(BlogEditView, self).get_context_data(**kwargs)
         if rv is None:
             rv = {}
-        rv['STATIC_URL'] = settings.STATIC_URL
         # imgs = []
         # for i in range(1, 11):
         #     imgs.append('new_boat_%s.jpg' % i)
@@ -226,7 +215,6 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         if rv is None:
             rv = {}
         rv['page_title'] = 'New Entry'
-        rv['STATIC_URL'] = settings.STATIC_URL
         return rv
 
     def get_success_url(self):
@@ -288,7 +276,6 @@ class WebcamView(DetailView):
 
     def get_context_data(self, **kwargs):
         rv = super(WebcamView, self).get_context_data(**kwargs)
-        rv['STATIC_URL'] = settings.STATIC_URL
         tz = timezone.get_current_timezone()
         ct = datetime.now(tz)
         dlt = timedelta(days=1)
@@ -324,11 +311,11 @@ class WcMonthView(DetailView):
 
     def get_context_data(self, **kwargs):
         rv = super(WcMonthView, self).get_context_data(**kwargs)
-        rv['STATIC_URL'] = settings.STATIC_URL
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         tz = timezone.get_current_timezone()
         ct = timezone.make_aware(datetime(y, m, 1), tz)
+        tday = timezone.make_aware(datetime.now(), tz)
         dlt = timedelta(days=1)
         firstD = first_day_before(timezone.make_aware(datetime(y, m, 1), tz), 6)
         lastD = last_day_after(last_day_of_month(ct), 5)
@@ -347,8 +334,11 @@ class WcMonthView(DetailView):
                 allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
                 curD = curD + dlt
         # rv['webcam'] = self.webcam
-        rv['prev_month'] = firstD - timedelta(days=1)
-        rv['next_month'] = lastD + timedelta(days=1)
+        pm = firstD - timedelta(days=1)
+        nm = lastD + timedelta(days=1)
+        rv['prev_month'] = pm
+        if nm < tday:
+            rv['next_month'] = nm
         rv['first_day'] = firstD
         rv['last_day'] = lastD
         rv['now'] = ct
@@ -449,7 +439,7 @@ class AdilHourView(TemplateView):
             snaps = wc.snaps_for_hour(y, m, d, h)
         except Webcam.DoesNotExist:
             pass
-        rv['STATIC_URL'] = settings.STATIC_URL
+        # rv['STATIC_URL'] = settings.STATIC_URL
         rv['snaps'] = snaps
         return rv
 
