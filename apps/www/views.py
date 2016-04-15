@@ -345,8 +345,9 @@ class WcMonthView(DetailView):
                 allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
                 curD = curD + dlt
         # rv['webcam'] = self.webcam
-        pm = firstD - timedelta(days=1)
-        nm = lastD + timedelta(days=1)
+        dlt = timedelta(days=1)
+        pm = firstD - dlt
+        nm = lastD + dlt
         rv['prev_month'] = pm
         if nm < tday:
             rv['next_month'] = nm
@@ -412,6 +413,11 @@ class DayInTheLifeView(WebsiteView):
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         d = int(self.kwargs['day'])
+        td = timezone.make_aware(datetime.now(), tz)
+        wdate = timezone.make_aware(datetime(y, m, d),tz)
+        dlt = timedelta(days=1)
+        pdate = wdate - dlt
+        ndate = wdate + dlt
         self.webcam = None
         snaps = None
         try:
@@ -420,7 +426,10 @@ class DayInTheLifeView(WebsiteView):
             pass
         rv['webcam'] = self.webcam
         rv['all_dates'] = None if self.webcam is None else self.webcam.snapshot_set.all().datetimes('ts_create', 'day')
-        rv['which_date'] = timezone.make_aware(datetime(y, m, d),tz)
+        rv['which_date'] = wdate
+        rv['prev_date'] = pdate
+        if ndate < td:
+            rv['next_date'] = ndate
         rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
 

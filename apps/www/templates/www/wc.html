@@ -5,7 +5,7 @@
         <div class="col-sm-4">
             <div class="" style="padding-top: 16px;">
     {% if prev_month %}
-                <a href="{% url 'wc_month' webcam.slug prev_month.year|stringformat:"04d" prev_month.month|stringformat:"02d" %}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_month|date:"M" }}</a>
+                <a href="{% url 'wc_month' webcam.slug prev_month.year|stringformat:"04d" prev_month.month|stringformat:"02d" %}" class=""><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_month|date:"M" }}</a>
     {% endif %}
             </div>
         </div>
@@ -17,7 +17,7 @@
         <div class="col-sm-4">
             <div class="pull-right" style="padding-top: 16px; padding-right: 0px;">
     {% if next_month %}
-                <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="btn btn-sm btn-default">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
     {% endif %}
             </div>
         </div>

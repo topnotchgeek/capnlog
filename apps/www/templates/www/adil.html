@@ -2,6 +2,29 @@
 
 {% block content %}
     <div class="row">
+        <div class="col-sm-4">
+            <div class="" style="padding-top: 16px;">
+    {% if prev_date %}
+                <a href="{% url 'adil' webcam.slug prev_date.year|stringformat:"04d" prev_date.month|stringformat:"02d" prev_date.day|stringformat:"02d" %}" class=""><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_date|date:"M j" }}</a>
+    {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="center-block">
+            <h3>{{ page_title }} <span class="small">{{ which_date|date:"M j, Y" }}</span></h3>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="pull-right" style="padding-top: 16px; padding-right: 0px;">
+    {% if next_date %}
+                <a href="{% url 'adil' webcam.slug next_date.year|stringformat:"04d" next_date.month|stringformat:"02d" next_date.day|stringformat:"02d" %}" class="">{{ next_date|date:"M j" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
+    {% endif %}
+            </div>
+        </div>
+    </div>
+    
+{% comment %}
+    <div class="row">
         <div class="col-sm-6">
             <h3>{{ page_title }} <span class="small">{{ which_date|date:"M j, Y" }}</span></h3>
         </div>
@@ -10,6 +33,8 @@
             </div>
         </div>
     </div>
+{% endcomment %}
+
     <div class="row">
         <div class="col-sm-12">
             <div role="navigation">
@@ -18,6 +43,8 @@
         {% with cnt=sbh.snaps|length %}
                     <li id="hour_{{ sbh.hour|date:"H" }}" role="presentation" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"hA" }}</a></li>
         {% endwith %}
+    {% empty %}
+        <li>No images were captured today</li>
     {% endfor %}
                 </ul>
             </div>
