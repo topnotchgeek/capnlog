@@ -23,6 +23,7 @@
         </div>
     </div>
 
+    {% if all_days %}
     <div class="row">
         <div class="col-sm-1">
         </div>
@@ -63,6 +64,14 @@
         <div class="col-sm-1">
         </div>
     </div>
+    {% else %}
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="row">
         <div class="col-sm-1"></div>

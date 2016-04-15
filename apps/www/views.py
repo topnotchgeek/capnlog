@@ -277,12 +277,12 @@ class WebcamView(DetailView):
     def get_context_data(self, **kwargs):
         rv = super(WebcamView, self).get_context_data(**kwargs)
         tz = timezone.get_current_timezone()
-        ct = datetime.now(tz)
-        dlt = timedelta(days=1)
-        firstD = first_day_before(datetime(ct.year, ct.month, 1, tzinfo=tz), 6)
-        lastD = last_day_after(last_day_of_month(ct), 5)
-        curD = firstD
-        allD = []
+        ct = timezone.make_aware(datetime.now(), tz)
+        # dlt = timedelta(days=1)
+        # firstD = first_day_before(datetime(ct.year, ct.month, 1, tzinfo=tz), 6)
+        # lastD = last_day_after(last_day_of_month(ct), 5)
+        # curD = firstD
+        # allD = []
         schOn = []
         schOff = []
         if self.object:
@@ -293,24 +293,16 @@ class WebcamView(DetailView):
                     if all:
                         schOn = all.get('on', None)
                         schOff = all.get('off', None)
-            while curD <= lastD:
-                sfd = self.object.snaps_for_day(curD)
-                cnt = sfd.count()
-                fst = None
-                lst = None
-                if cnt > 0:
-                    fst = sfd.earliest('ts_create')
-                    lst = sfd.latest('ts_create')
-                allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst })
-                curD = curD + dlt
-        # rv['webcam'] = self.webcam
-        rv['first_day'] = firstD
-        rv['last_day'] = lastD
+            # fst = self.object.snapshot_set.earliest('ts_create')
+            # lst = self.object.snapshot_set.latest('ts_create')
+            # rv['first_day'] = fst.ts_create
+            # rv['last_day'] = lst.ts_create
         rv['now'] = ct
-        rv['all_days'] = allD
+        # rv['all_days'] = allD
         rv['scheduled_on'] = schOn
         rv['scheduled_off'] = schOff
         return rv
+
 
 class WcMonthView(DetailView):
 
@@ -332,8 +324,17 @@ class WcMonthView(DetailView):
         lastD = last_day_after(last_day_of_month(ct), 5)
         curD = firstD
         allD = []
+        schOn = []
+        schOff = []
         if self.object:
             rv['page_title'] = '%s - %s' % (self.object.name, ct.strftime('%b %Y'))
+            if len(self.object.schedule) > 0:
+                sch = json.loads(self.object.schedule)
+                if sch:
+                    all = sch.get('all', None)
+                    if all:
+                        schOn = all.get('on', None)
+                        schOff = all.get('off', None)
             while curD <= lastD:
                 sfd = self.object.snaps_for_day(curD)
                 cnt = sfd.count()
@@ -355,6 +356,22 @@ class WcMonthView(DetailView):
         rv['last_day'] = lastD
         rv['now'] = ct
         rv['all_days'] = allD
+
+        if self.object:
+            if len(self.object.schedule) > 0:
+                sch = json.loads(self.object.schedule)
+                if sch:
+                    all = sch.get('all', None)
+                    if all:
+                        schOn = all.get('on', None)
+                        schOff = all.get('off', None)
+            fst = self.object.snapshot_set.earliest('ts_create')
+            lst = self.object.snapshot_set.latest('ts_create')
+            rv['first_day'] = fst.ts_create
+            rv['last_day'] = lst.ts_create
+        rv['scheduled_on'] = schOn
+        rv['scheduled_off'] = schOff
+
         return rv
 
 
