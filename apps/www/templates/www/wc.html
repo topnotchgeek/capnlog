@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+    {% if all_days %}
     <div class="row">
         <div class="col-sm-4">
             <div class="" style="padding-top: 16px;">
-    {% if prev_month %}
+        {% if prev_month %}
                 <a href="{% url 'wc_month' webcam.slug prev_month.year|stringformat:"04d" prev_month.month|stringformat:"02d" %}" class=""><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_month|date:"M" }}</a>
-    {% endif %}
+        {% endif %}
             </div>
         </div>
         <div class="col-sm-4">
@@ -16,14 +18,13 @@
         </div>
         <div class="col-sm-4">
             <div class="pull-right" style="padding-top: 16px; padding-right: 0px;">
-    {% if next_month %}
+        {% if next_month %}
                 <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>
-    {% endif %}
+        {% endif %}
             </div>
         </div>
     </div>
 
-    {% if all_days %}
     <div class="row">
         <div class="col-sm-1">
         </div>
@@ -66,42 +67,32 @@
     </div>
     {% else %}
         <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-10">
-                <a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a>
-            </div>
-        </div>
-    {% endif %}
-
-    <div class="row">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-11">
-    {% if scheduled_on %}
-            <div>
+            <div class="col-sm-12">
+                <h3>{{ webcam.name }}</h3>
+                <p><a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a></p>
+        {% if scheduled_on %}
                 <p>Scheduled on every day
-        {% for s in scheduled_on %}
-            {% if forloop.counter0 > 0 %}
+            {% for s in scheduled_on %}
+                {% if forloop.counter0 > 0 %}
                 and
-            {% endif %}
+                {% endif %}
             from {{ s.start }} to {{ s.stop }}
-        {% endfor %}
+            {% endfor %}
                 </p>
-            </div>
-    {% endif %}
-    {% if scheduled_off %}
-            <div>
+        {% endif %}
+        {% if scheduled_off %}
                 <p>Scheduled off every day
-        {% for s in scheduled_off %}
-            {% if forloop.counter0 > 0 %}
+            {% for s in scheduled_off %}
+                {% if forloop.counter0 > 0 %}
                 and
-            {% endif %}
+                {% endif %}
             from {{ s.start }} to {{ s.stop }}
-        {% endfor %}
+            {% endfor %}
                 </p>
+        {% endif %}
             </div>
-    {% endif %}
         </div>
-    </div>
+    {% endif %}
 {% endblock content %}
 
 {% block extra_css %}
