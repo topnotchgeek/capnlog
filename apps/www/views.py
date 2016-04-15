@@ -283,7 +283,16 @@ class WebcamView(DetailView):
         lastD = last_day_after(last_day_of_month(ct), 5)
         curD = firstD
         allD = []
+        schOn = []
+        schOff = []
         if self.object:
+            if len(self.object.schedule) > 0:
+                sch = json.loads(self.object.schedule)
+                if sch:
+                    all = sch.get('all', None)
+                    if all:
+                        schOn = all.get('on', None)
+                        schOff = all.get('off', None)
             while curD <= lastD:
                 sfd = self.object.snaps_for_day(curD)
                 cnt = sfd.count()
@@ -299,6 +308,8 @@ class WebcamView(DetailView):
         rv['last_day'] = lastD
         rv['now'] = ct
         rv['all_days'] = allD
+        rv['scheduled_on'] = schOn
+        rv['scheduled_off'] = schOff
         return rv
 
 class WcMonthView(DetailView):

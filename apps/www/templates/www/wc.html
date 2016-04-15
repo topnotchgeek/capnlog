@@ -63,6 +63,36 @@
         <div class="col-sm-1">
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-11">
+    {% if scheduled_on %}
+            <div>
+                <p>Scheduled on every day
+        {% for s in scheduled_on %}
+            {% if forloop.counter0 > 0 %}
+                and
+            {% endif %}
+            from {{ s.start }} to {{ s.stop }}
+        {% endfor %}
+                </p>
+            </div>
+    {% endif %}
+    {% if scheduled_off %}
+            <div>
+                <p>Scheduled off every day
+        {% for s in scheduled_off %}
+            {% if forloop.counter0 > 0 %}
+                and
+            {% endif %}
+            from {{ s.start }} to {{ s.stop }}
+        {% endfor %}
+                </p>
+            </div>
+    {% endif %}
+        </div>
+    </div>
 {% endblock content %}
 
 {% block extra_css %}
