@@ -289,3 +289,22 @@ class WuAstronomy(models.Model):
         ss = datetime.strptime(sss, '%Y-%m-%d %H:%M')
         odlt = ss - sr
         return sdlt.seconds - odlt.seconds
+
+
+class TempHumidity(models.Model):
+    TIME_KEY_FMT = '%Y%m%d_%H%M'
+
+    status = models.SmallIntegerField(default=0, blank=True, null=True)
+    flag = models.SmallIntegerField(default=0, blank=True, null=True)
+    reading_time = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False)
+    time_key = models.CharField(max_length=20, unique=True)
+
+    temperature = models.DecimalField(decimal_places=1, max_digits=5, default=0.0, blank=True, null=True)
+    humidity = models.DecimalField(decimal_places=1, max_digits=5, default=0.0, blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s %5.1f %5.1f' % (self.time_key, self.temperature, self.humidity)
+
+    @classmethod
+    def make_time_key(cls, dte):
+        return dte.strftime(cls.TIME_KEY_FMT)

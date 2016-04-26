@@ -12,7 +12,7 @@ from rest_framework.authtoken.models import Token
 from vanilla import ListView, DetailView, UpdateView, CreateView
 from vanilla.views import TemplateView
 
-from .models import BlogEntry, Snapshot
+from .models import BlogEntry, Snapshot, TempHumidity
 from .forms import BlogEntryForm
 from .util import *
 
@@ -482,9 +482,9 @@ class AdilHourView(TemplateView):
 
 
 @csrf_exempt
-def api_post(request, *args, **kwargs):
+def post_img(request, *args, **kwargs):
     if request.method == 'POST':
-        logger.debug('api_post')
+        logger.debug('post_img')
         slg = kwargs['slug']
         try:
             wc = Webcam.objects.get(slug=slg)
@@ -505,6 +505,7 @@ def api_post(request, *args, **kwargs):
         if ss:
             return JsonResponse({"result": "success", "user_id": u.id, "img_id": ss.id })
     return HttpResponseBadRequest()
+
 
 def save_image(d, wc):
     # cid = d['cam_id'] or 0
@@ -561,3 +562,50 @@ def api_is_scheduled(request, *args, **kwargs):
         logger.debug('webcam not found: %s' % slg)
         wc = None
     return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
+
+
+@csrf_exempt
+def post_rht(request, *args, **kwargs):
+    if request.method == 'POST':
+        logger.debug('post_rht')
+        auth = request.META['HTTP_AUTHORIZATION'] or None
+        if auth is None or len(auth) < 10:
+            return HttpResponseBadRequest()
+        try:
+            tkn = Token.objects.get(key=auth[6:])
+        except Token.DoesNotExist:
+            return HttpResponseBadRequest()
+        u = tkn.user
+        logger.debug('authorized: %s' % u.username)
+        d = json.loads(request.body)
+        rht = save_rht(d)
+        if rht:
+            return JsonResponse({"result": "success", "user_id": u.id, "rht_id": rht.id })
+    return HttpResponseBadRequest()
+
+
+def save_rht(d):
+    if d is None:
+        return
+    tm = d.get('time', None)
+    t = d.get('temp', -999.99)
+    h = d.get('humidity', -1.0)
+    if tm is None or t == -999.99 or h == -1.0:
+        return
+    rtm = datetime.strptime(tm, '%Y-%m-%d %H:%M:%S')
+
+    tk = TempHumidity.make_time_key(rtm)
+    rht = None
+    try:
+        rht = TempHumidity.objects.get(time_key=tk)
+    except TempHumidity.DoesNotExist:
+        rht = None
+    if rht is not None:
+        return
+    rht = TempHumidity()
+    rht.time_key = tk
+    rht.temperature = t
+    rht.humidity = h
+    rht.reading_time = timezone.make_aware(rtm, timezone.get_current_timezone())
+    rht.save()
+    return rht

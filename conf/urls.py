@@ -17,8 +17,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
-    api_post, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled, \
-    WebcamView, WcMonthView
+    post_img, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled, \
+    WebcamView, WcMonthView, post_rht
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -33,8 +33,9 @@ urlpatterns = [
     url(r'^weather$', WeatherView.as_view(), name='weather'),
     url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
     url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
-    url(r'^api_post/(?P<slug>[-\w]+)/$', api_post, name='api_post'),
+    url(r'^api_post/(?P<slug>[-\w]+)/$', post_img, name='api_post'),
     url(r'^api_sched/(?P<slug>[-\w]+)/$', api_is_scheduled, name='is_sched'),
+    url(r'^post_rht/$', post_rht, name='post_rht'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', WcMonthView.as_view(), name='wc_month'),
