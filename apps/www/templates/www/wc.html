@@ -76,7 +76,7 @@
                 {% if forloop.counter0 > 0 %}
                 and
                 {% endif %}
-            from {{ s.start }} to {{ s.stop }}
+            from {{ s.start|slice:":5" }} to {{ s.stop|slice:":5" }}
             {% endfor %}
                 </p>
         {% endif %}
@@ -86,8 +86,13 @@
                 {% if forloop.counter0 > 0 %}
                 and
                 {% endif %}
-            from {{ s.start }} to {{ s.stop }}
+            from {{ s.start|slice:":5" }} to {{ s.stop|slice:":5" }}
             {% endfor %}
+                </p>
+        {% endif %}
+        {% if rht %}
+                <p>
+                As of {{ rht.reading_time }} the temperature is {{ rht.temperature }} and the relative humidity is {{ rht.humidity }}%.
                 </p>
         {% endif %}
             </div>
