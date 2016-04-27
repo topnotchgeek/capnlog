@@ -286,6 +286,7 @@ class WebcamView(DetailView):
         schOn = []
         schOff = []
         if self.object:
+            rv['page_title'] = self.object.name
             if len(self.object.schedule) > 0:
                 sch = json.loads(self.object.schedule)
                 if sch:
@@ -301,12 +302,6 @@ class WebcamView(DetailView):
         # rv['all_days'] = allD
         rv['scheduled_on'] = schOn
         rv['scheduled_off'] = schOff
-        rht = None
-        try:
-            rht = TempHumidity.objects.latest('reading_time')
-        except:
-            rht = None
-        rv['rht'] = rht
         return rv
 
 

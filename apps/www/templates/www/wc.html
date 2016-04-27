@@ -90,11 +90,13 @@
             {% endfor %}
                 </p>
         {% endif %}
+{% comment %}
         {% if rht %}
                 <p>
                 As of {{ rht.reading_time }} the temperature is {{ rht.temperature }} and the relative humidity is {{ rht.humidity }}%.
                 </p>
         {% endif %}
+{% endcomment %}
             </div>
         </div>
     {% endif %}

@@ -13,10 +13,11 @@
 			<hr/>
 			<div class="row">
 				<div class="col-sm-4">
-					<p class="small">
-						This website &copy; {% now "Y" %}, Jef Duncan
+					<span class="small">This website &copy; {% now "Y" %}, Jef Duncan</span>
 {#                        &nbsp; <a href="{% url 'about' %}">About</a> #}
-					</p>
+
+                    <span class="small pull-right">{% if rht %}Temp: {{ rht.temperature }}&nbsp;&nbsp;Hum: {{ rht.humidity }}{% endif %}</span>
+
 				</div>
 				<div class="col-sm-4">
                     <div>
