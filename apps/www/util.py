@@ -102,7 +102,7 @@ def update_schedule():
     except:
         return
     on = []
-    pad = timedelta(seconds=3600)
+    pad = timedelta(seconds=2700)
     sr = pa.sun_rise
     st = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0),tz) - pad
     et = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0), tz) + pad
