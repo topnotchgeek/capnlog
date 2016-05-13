@@ -29,6 +29,7 @@
     <script type="text/javascript" src="//code.highcharts.com/highcharts-more.js"></script>
     <script type="text/javascript">
 
+{% comment %}
         function new_chart(k, s) {
             var c_red = "#DF5353";  //"#cc0000";
             var c_blue = "#0099cc";
@@ -51,7 +52,6 @@
                 yttl = 'Percent';
                 ta = 6;
             }
-{% comment %}
             else if (k == 'b') {
                 ctr = '#pressure_div';
                 ttl = 'Barometric Pressure';
@@ -71,7 +71,6 @@
                 yttl = 'Precip (in)';
                 ta = 6;
             }
-{% endcomment %}
             else {
                 return;
             }
@@ -113,32 +112,19 @@
                 series: s
             });
         }
-
+{% endcomment %}
 
         function on_chart_data(resp) {
             var s = [];
             var res = resp.result;
             $.each(res, function(ndx, val) {
                 var sp = Date.UTC(val.start.yy, val.start.mm, val.start.dd, val.start.hh, val.start.mi)
-                var opts = make_th_chart(sp, val.temp, val.hum);
+                var opts = make_th_chart(sp, val.name, val.temp, val.hum);
                 $("#div_"+val.name).highcharts(opts);
-{#                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*5, "data": val.data});#}
             });
-{% comment %}
-            if (k == 't')
-                new_chart(k, s);
-            else if (k == 'b')
-                new_chart(k, s);
-            else if (k == 'w')
-                new_chart(k, s);
-            else if (k == 'p')
-                new_chart(k, s);
-            else if (k == 'h')
-                new_chart(k, s);
-{% endcomment %}
         }
 
-        function make_th_chart(sp, temps, hums) {
+        function make_th_chart(sp, nm, temps, hums) {
             return {
                 chart: {
                     zoomType: 'xy'
@@ -147,7 +133,7 @@
                     text: 'Temperature and Humidity'
                 },
                 subtitle: {
-                    text: 'Source: station-01'
+                    text: 'Source: ' + nm
                 },
                 xAxis: {
                     type: 'datetime',
@@ -230,6 +216,6 @@
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
-    ajax_get_html("/api_chart", on_chart_data, {kind: 't'});
+    ajax_get_html("/api_chart", on_chart_data, {});
 {#    ajax_get_html("/api_chart", on_chart_data, {kind: 'h'});#}
 {% endblock %}
