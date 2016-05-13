@@ -482,10 +482,6 @@ class AdilHourView(TemplateView):
         return rv
 
 
-class TempHumView(TemplateView):
-    template_name = 'www/adil_hour.html'
-
-
 DEF_HOURS = 24
 
 
@@ -528,9 +524,9 @@ class AjaxChartView(TemplateView):
                 if v < -1000:
                     v = 0
                 vals.append(float('%.2f' % v))
-
-        sp = timezone.localtime(sp, tz)
-        data.append({'name': self.names[st], 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'data': vals})
+        if sp:
+            sp = timezone.localtime(sp, tz)
+            data.append({'name': 'station-01', 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'data': vals})
         return {'result': data, 'kind': self.kind}
 
     def get(self, request, *args, **kwargs):

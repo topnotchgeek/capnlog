@@ -34,42 +34,7 @@
             var ttl = '';
             var yttl = '';
             var ta = 0;
-            $(ctr).highcharts({
-                chart: {
-                    height: 250,
-                    renderTo: ctr,
-                    type: 'line'
-                },
-                colors: [ c_green, c_red, c_blue ],
-                title: {
-                    text: ttl
-                },
-                xAxis: {
-                    type: 'datetime',
-                    title: 'Time',
-                    dateTimeLabelFormats:{
-                        millisecond: '%H:%M:%S.%L',
-                        second: '%H:%M:%S',
-                        minute: '%H:%M',
-                        hour: '%l%p',
-                        day: '%l%p',
-                        week: '%H:%M',
-                        month: '%H:%M',
-                        year: '%Y'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: yttl
-                    }
-                },
-                legend: {
-                    enabled: leg
-{#                    align: 'right',#}
-{#                    verticalAlign: 'top'#}
-                },
-                series: s
-            });
+
             if (k == 't') {
                 ctr = '#temp_div';
                 ttl = 'Temperature';
@@ -106,6 +71,43 @@
             else {
                 return;
             }
+
+            $(ctr).highcharts({
+                chart: {
+                    height: 250,
+                    renderTo: ctr,
+                    type: 'line'
+                },
+                colors: [ c_green, c_red, c_blue ],
+                title: {
+                    text: ttl
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: 'Time',
+                    dateTimeLabelFormats:{
+                        millisecond: '%H:%M:%S.%L',
+                        second: '%H:%M:%S',
+                        minute: '%H:%M',
+                        hour: '%l%p',
+                        day: '%l%p',
+                        week: '%H:%M',
+                        month: '%H:%M',
+                        year: '%Y'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: yttl
+                    }
+                },
+                legend: {
+                    enabled: leg
+{#                    align: 'right',#}
+{#                    verticalAlign: 'top'#}
+                },
+                series: s
+            });
         }
 
 
@@ -113,10 +115,9 @@
             var s = [];
             var res = resp.result;
             var k = resp.kind;
-            $.each(res, function(ndx, stn) {
-                var nm = stn.name;
-                var sp = Date.UTC(stn.start.yy, stn.start.mm, stn.start.dd, stn.start.hh, stn.start.mi)
-                s.push({"name": nm, "pointStart": sp, "pointInterval": 1000*60*60, "data": stn.data});
+            $.each(res, function(ndx, val) {
+                var sp = Date.UTC(val.start.yy, val.start.mm, val.start.dd, val.start.hh, val.start.mi)
+                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*60, "data": val.data});
             });
             if (k == 't')
                 new_chart(k, s);
@@ -129,7 +130,10 @@
             else if (k == 'h')
                 new_chart(k, s);
         }
+    </script>
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
+    ajax_get_html("/api_chart", on_chart_data, {kind: 't'});
+    ajax_get_html("/api_chart", on_chart_data, {kind: 'h'});
 {% endblock %}

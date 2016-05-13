@@ -18,7 +18,7 @@ from django.contrib import admin
 
 from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
     post_img, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled, \
-    WebcamView, WcMonthView, post_rht
+    WebcamView, WcMonthView, post_rht, AjaxChartView
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^api_post/(?P<slug>[-\w]+)/$', post_img, name='api_post'),
     url(r'^api_sched/(?P<slug>[-\w]+)/$', api_is_scheduled, name='is_sched'),
     url(r'^post_rht/$', post_rht, name='post_rht'),
+    url(r'^api_chart$', AjaxChartView.as_view(), name='ajax_chart'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', WcMonthView.as_view(), name='wc_month'),
