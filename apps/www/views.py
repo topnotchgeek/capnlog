@@ -523,6 +523,7 @@ class AjaxChartView(TemplateView):
             if v:
                 if v < -1000:
                     v = 0
+                #vals.append({'rt': rt, 'value': float('%.2f' % v)})
                 vals.append(float('%.2f' % v))
         if sp:
             sp = timezone.localtime(sp, tz)
