@@ -240,9 +240,17 @@ class PhotosView(WebsiteView):
 class WeatherView(WebsiteView):
 
     template_name = 'www/weather.html'
+    stations = None
 
     def get_page_title(self):
         return 'San Diego Weather'
+
+    def get_context_data(self, **kwargs):
+        rv = super(WeatherView, self).get_context_data(**kwargs)
+        if rv is None:
+            rv = {}
+        rv['stations'] = ['station-01']
+        return rv
 
 
 class BoatCamView(WebsiteView):
@@ -504,31 +512,39 @@ class AjaxChartView(TemplateView):
         data = []
         # for st in self.stations:
         vals = []
+        tmps = []
+        hums = []
         list = TempHumidity.objects.filter(reading_time__gte=st_tm).order_by('-reading_time')
         for c in list:
-            rt = timezone.make_aware(c.reading_time, tz)
+            # rt = timezone.make_aware(c.reading_time, tz)
             if sp is None:
-                sp = rt
-            v = None
-            if self.kind == 't':
-                v = c.temperature
-            elif self.kind == 'h':
-                v = c.humidity
+                sp = c.reading_time
+            # v = None
+            # if self.kind == 't':
+            #     v = c.temperature
+            # elif self.kind == 'h':
+            #     v = c.humidity
             # elif self.kind == 'b':
             #     v = c.pressure
             # elif self.kind == 'w':
             #     v = c.wind_mph
             # elif self.kind == 'p':
             #     v = c.precip_1h
+            v = c.temperature
             if v:
                 if v < -1000:
                     v = 0
-                #vals.append({'rt': rt, 'value': float('%.2f' % v)})
-                vals.append(float('%.2f' % v))
-        if sp:
-            sp = timezone.localtime(sp, tz)
-            data.append({'name': 'station-01', 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'data': vals})
-        return {'result': data, 'kind': self.kind}
+                tmps.append(float('%.2f' % v))
+            v = c.humidity
+            if v:
+                if v < -1000:
+                    v = 0
+                hums.append(float('%.2f' % v))
+        if sp is None:
+            sp = datetime.now()
+        sp = timezone.localtime(sp, tz)
+        data.append({'name': 'station-01', 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'temp': tmps, 'hum': hums})
+        return {'result': data}
 
     def get(self, request, *args, **kwargs):
         # s = request.GET.get('stations', 'KSAN,KPHX')

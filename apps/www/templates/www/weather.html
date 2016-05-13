@@ -8,11 +8,10 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-6">
-            <div id="temp_div"></div>
-        </div>
-        <div class="col-sm-6">
-            <div id="hum_div"></div>
+        <div class="col-sm-12">
+    {% for s in stations %}
+            <div id="div_{{ s }}"></div>
+    {% endfor %}
         </div>
     </div>
 
@@ -119,11 +118,13 @@
         function on_chart_data(resp) {
             var s = [];
             var res = resp.result;
-            var k = resp.kind;
             $.each(res, function(ndx, val) {
                 var sp = Date.UTC(val.start.yy, val.start.mm, val.start.dd, val.start.hh, val.start.mi)
-                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*5, "data": val.data});
+                var opts = make_th_chart(sp, val.temp, val.hum);
+                $("#div_"+val.name).highcharts(opts);
+{#                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*5, "data": val.data});#}
             });
+{% comment %}
             if (k == 't')
                 new_chart(k, s);
             else if (k == 'b')
@@ -134,11 +135,101 @@
                 new_chart(k, s);
             else if (k == 'h')
                 new_chart(k, s);
+{% endcomment %}
+        }
+
+        function make_th_chart(sp, temps, hums) {
+            return {
+                chart: {
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Temperature and Humidity'
+                },
+                subtitle: {
+                    text: 'Source: station-01'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: 'Time',
+                    dateTimeLabelFormats: {
+                        millisecond: '%H:%M:%S.%L',
+                        second: '%H:%M:%S',
+                        minute: '%H:%M',
+                        hour: '%l%p',
+                        day: '%l%p',
+                        week: '%H:%M',
+                        month: '%H:%M',
+                        year: '%Y'
+                    }
+                },
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value}°F',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    },
+                    title: {
+                        text: 'Temperature',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: 'Humidity',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    labels: {
+                        format: '{value}%',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    opposite: true
+                }],
+                tooltip: {
+                    shared: true
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    x: 120,
+                    verticalAlign: 'top',
+                    y: 100,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                },
+                series: [{
+                    pointStart: sp,
+                    pointInterval: 1000*60*5,
+                    name: 'Humidity',
+                    type: 'spline',
+                    yAxis: 1,
+                    data: hums,
+                    tooltip: {
+                        valueSuffix: '%'
+                    }
+
+                }, {
+                    pointStart: sp,
+                    pointInterval: 1000*60*5,
+                    name: 'Temperature',
+                    type: 'spline',
+                    data: temps,
+                    tooltip: {
+                        valueSuffix: '°F'
+                    }
+                }]
+            };
         }
     </script>
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
     ajax_get_html("/api_chart", on_chart_data, {kind: 't'});
-    ajax_get_html("/api_chart", on_chart_data, {kind: 'h'});
+{#    ajax_get_html("/api_chart", on_chart_data, {kind: 'h'});#}
 {% endblock %}
