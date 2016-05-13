@@ -117,7 +117,7 @@
             var k = resp.kind;
             $.each(res, function(ndx, val) {
                 var sp = Date.UTC(val.start.yy, val.start.mm, val.start.dd, val.start.hh, val.start.mi)
-                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*60, "data": val.data});
+                s.push({"name": val.name, "pointStart": sp, "pointInterval": 1000*60*300, "data": val.data});
             });
             if (k == 't')
                 new_chart(k, s);
