@@ -506,7 +506,7 @@ class AjaxChartView(TemplateView):
         vals = []
         list = TempHumidity.objects.filter(reading_time__gte=st_tm).order_by('-reading_time')
         for c in list:
-            rt = c.reading_time
+            rt = timezone.make_aware(c.reading_time, tz)
             if sp is None:
                 sp = rt
             v = None
