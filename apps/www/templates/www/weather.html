@@ -6,4 +6,130 @@
             <h3>Weather</h3>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="temp_div"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="hum_div"></div>
+        </div>
+    </div>
 {% endblock content %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="//code.highcharts.com/highcharts.js"></script>
+    <script type="text/javascript" src="//code.highcharts.com/highcharts-more.js"></script>
+    <script type="text/javascript">
+
+        function new_chart(k, s) {
+            var c_red = "#DF5353";  //"#cc0000";
+            var c_blue = "#0099cc";
+            var c_green = "#55BF3B";   //"#669900";
+            var leg = true;
+            var ctr = '';
+            var ttl = '';
+            var yttl = '';
+            var ta = 0;
+            $(ctr).highcharts({
+                chart: {
+                    height: 250,
+                    renderTo: ctr,
+                    type: 'line'
+                },
+                colors: [ c_green, c_red, c_blue ],
+                title: {
+                    text: ttl
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: 'Time',
+                    dateTimeLabelFormats:{
+                        millisecond: '%H:%M:%S.%L',
+                        second: '%H:%M:%S',
+                        minute: '%H:%M',
+                        hour: '%l%p',
+                        day: '%l%p',
+                        week: '%H:%M',
+                        month: '%H:%M',
+                        year: '%Y'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: yttl
+                    }
+                },
+                legend: {
+                    enabled: leg
+{#                    align: 'right',#}
+{#                    verticalAlign: 'top'#}
+                },
+                series: s
+            });
+            if (k == 't') {
+                ctr = '#temp_div';
+                ttl = 'Temperature';
+                yttl = 'Temp (°f)';
+                ta = 10;
+            }
+            else if (k == 'h') {
+                ctr = '#hum_div';
+                ttl = 'Humidity';
+                yttl = 'Percent';
+                ta = 6;
+            }
+{% comment %}
+            else if (k == 'b') {
+                ctr = '#pressure_div';
+                ttl = 'Barometric Pressure';
+                yttl = 'Barometer (in)';
+                leg = true;
+                ta = 6;
+            }
+            else if (k == 'w') {
+                ctr = '#wind_div';
+                ttl = 'Wind Speed';
+                yttl = 'Speed (mph)';
+                ta = 10;
+            }
+            else if (k == 'p') {
+                ctr = '#precip_div';
+                ttl = 'Precipitation';
+                yttl = 'Precip (in)';
+                ta = 6;
+            }
+{% endcomment %}
+            else {
+                return;
+            }
+        }
+
+
+        function on_chart_data(resp) {
+            var s = [];
+            var res = resp.result;
+            var k = resp.kind;
+            $.each(res, function(ndx, stn) {
+                var nm = stn.name;
+                var sp = Date.UTC(stn.start.yy, stn.start.mm, stn.start.dd, stn.start.hh, stn.start.mi)
+                s.push({"name": nm, "pointStart": sp, "pointInterval": 1000*60*60, "data": stn.data});
+            });
+            if (k == 't')
+                new_chart(k, s);
+            else if (k == 'b')
+                new_chart(k, s);
+            else if (k == 'w')
+                new_chart(k, s);
+            else if (k == 'p')
+                new_chart(k, s);
+            else if (k == 'h')
+                new_chart(k, s);
+        }
+{% endblock %}
+
+{% block jquery_on_doc_ready %}
+{% endblock %}

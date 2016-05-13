@@ -482,6 +482,68 @@ class AdilHourView(TemplateView):
         return rv
 
 
+class TempHumView(TemplateView):
+    template_name = 'www/adil_hour.html'
+
+
+DEF_HOURS = 24
+
+
+class AjaxChartView(TemplateView):
+
+    template_name = 'n/a'
+
+    def __init__(self):
+        super(AjaxChartView, self).__init__()
+        # self.stations = None
+        self.kind = None
+        # self.names = {"KSAN": "San Diego", "KPHX": "Phoenix", "KOKC": "OKC", "KTEB": "Hackensack"}
+
+    def get_context_data(self, **kwargs):
+        tz = timezone.get_current_timezone()
+        cur_tm = datetime.now(tz)
+        dlt = timedelta(hours=DEF_HOURS)
+        st_tm = cur_tm - dlt
+        sp = None
+        data = []
+        # for st in self.stations:
+        vals = []
+        list = TempHumidity.objects.filter(reading_time__gte=st_tm).order_by('reading_time')
+        for c in list:
+            rt = c.reading_time
+            if sp is None:
+                sp = rt
+            v = None
+            if self.kind == 't':
+                v = c.temperature
+            elif self.kind == 'h':
+                v = c.humidity
+            # elif self.kind == 'b':
+            #     v = c.pressure
+            # elif self.kind == 'w':
+            #     v = c.wind_mph
+            # elif self.kind == 'p':
+            #     v = c.precip_1h
+            if v:
+                if v < -1000:
+                    v = 0
+                vals.append(float('%.2f' % v))
+
+        sp = timezone.localtime(sp, tz)
+        data.append({'name': self.names[st], 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'data': vals})
+        return {'result': data, 'kind': self.kind}
+
+    def get(self, request, *args, **kwargs):
+        # s = request.GET.get('stations', 'KSAN,KPHX')
+        # self.stations = s.split(',')
+        self.kind = request.GET.get('kind', 't')
+        return super(AjaxChartView, self).get(request, *args, **kwargs)
+
+    def render_to_response(self, context):
+        s = json.dumps(context)
+        return HttpResponse(s, content_type='application/json')
+
+
 @csrf_exempt
 def post_img(request, *args, **kwargs):
     if request.method == 'POST':

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import BlogEntry
+from .models import BlogEntry, TempHumidity
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,3 +19,9 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BlogEntry
         fields = ('title', 'entry_text', 'create_time', 'author')
+
+
+class TempHumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TempHumidity
+        fields = ('reading_time', 'temperature', 'humidity')

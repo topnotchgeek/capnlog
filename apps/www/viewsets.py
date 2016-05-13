@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from .serializers import UserSerializer, GroupSerializer, EntrySerializer
-from .models import BlogEntry
+from .serializers import UserSerializer, GroupSerializer, EntrySerializer, TempHumSerializer
+from .models import BlogEntry, TempHumidity
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,3 +23,8 @@ class GroupViewSet(viewsets.ModelViewSet):
 class EntryViewSet(viewsets.ModelViewSet):
     queryset = BlogEntry.objects.all().order_by('-create_time')
     serializer_class = EntrySerializer
+
+
+class TempHumViewSet(viewsets.ModelViewSet):
+    queryset = TempHumidity.objects.order_by('-reading_time')[:24]
+    serializer_class = TempHumSerializer
