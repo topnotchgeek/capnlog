@@ -116,15 +116,28 @@
 
         function on_chart_data(resp) {
             var s = [];
+{#            var nm = resp.name;#}
+{#            var rdngs = resp.readings;#}
+            var opts = make_th_chart(resp.name, resp.readings);
+            $("#div_"+resp.name).highcharts(opts);
+{% comment %}
             var res = resp.result;
             $.each(res, function(ndx, val) {
                 var sp = Date.UTC(val.start.yy, val.start.mm, val.start.dd, val.start.hh, val.start.mi)
-                var opts = make_th_chart(sp, val.name, val.temp, val.hum);
+                var opts = make_th_chart(sp, val.name, val.readings);
                 $("#div_"+val.name).highcharts(opts);
             });
+{% endcomment %}
         }
 
-        function make_th_chart(sp, nm, temps, hums) {
+        function make_th_chart(nm, rdngs) {
+            var tmps = [];
+            var hums = [];
+            $.each(rdngs, function(ndx, val) {
+                var dte = Date.UTC(val.yy, val.mm, val.dd, val.hh, val.mi);
+                tmps.push([dte, val.temp]);
+                hums.push([dte, val.hum]);
+            });
             return {
                 chart: {
                     zoomType: 'xy'
@@ -153,13 +166,13 @@
                     labels: {
                         format: '{value}°F',
                         style: {
-                            color: Highcharts.getOptions().colors[2]
+                            color: Highcharts.getOptions().colors[1]
                         }
                     },
                     title: {
                         text: 'Temperature',
                         style: {
-                            color: Highcharts.getOptions().colors[2]
+                            color: Highcharts.getOptions().colors[1]
                         }
                     }
                 }, { // Secondary yAxis
@@ -190,8 +203,6 @@
                     backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
                 },
                 series: [{
-                    pointStart: sp,
-                    pointInterval: 1000*60*5,
                     name: 'Humidity',
                     type: 'spline',
                     yAxis: 1,
@@ -201,11 +212,9 @@
                     }
 
                 }, {
-                    pointStart: sp,
-                    pointInterval: 1000*60*5,
                     name: 'Temperature',
                     type: 'spline',
-                    data: temps,
+                    data: tmps,
                     tooltip: {
                         valueSuffix: '°F'
                     }

@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
     url(r'^api_post/(?P<slug>[-\w]+)/$', post_img, name='api_post'),
     url(r'^api_sched/(?P<slug>[-\w]+)/$', api_is_scheduled, name='is_sched'),
-    url(r'^post_rht/$', post_rht, name='post_rht'),
+    url(r'^post_rht/(?P<slug>[-\w]+)/$', post_rht, name='post_rht'),
     url(r'^api_chart$', AjaxChartView.as_view(), name='ajax_chart'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),

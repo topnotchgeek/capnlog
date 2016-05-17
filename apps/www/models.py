@@ -291,6 +291,15 @@ class WuAstronomy(models.Model):
         return sdlt.seconds - odlt.seconds
 
 
+class Station(models.Model):
+    status = models.SmallIntegerField(default=0, blank=True, null=True)
+    flag = models.SmallIntegerField(default=0, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
+
+    def __unicode__(self):
+        return '%s' % self.name
+
+
 class TempHumidity(models.Model):
     TIME_KEY_FMT = '%Y%m%d_%H%M'
 
@@ -301,9 +310,13 @@ class TempHumidity(models.Model):
 
     temperature = models.DecimalField(decimal_places=1, max_digits=5, default=0.0, blank=True, null=True)
     humidity = models.DecimalField(decimal_places=1, max_digits=5, default=0.0, blank=True, null=True)
+    station = models.ForeignKey(Station)
+
+    # class Meta:
+    #     unique_together = ('time_key', 'station')
 
     def __unicode__(self):
-        return '%s %5.1f %5.1f' % (self.time_key, self.temperature, self.humidity)
+        return '%s - %s %5.1f %5.1f' % ('station-01', self.time_key, self.temperature, self.humidity)
 
     @classmethod
     def make_time_key(cls, dte):

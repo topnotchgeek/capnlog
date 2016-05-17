@@ -12,7 +12,7 @@ from rest_framework.authtoken.models import Token
 from vanilla import ListView, DetailView, UpdateView, CreateView
 from vanilla.views import TemplateView
 
-from .models import BlogEntry, Snapshot, TempHumidity
+from .models import BlogEntry, Snapshot, TempHumidity, Station
 from .forms import BlogEntryForm
 from .util import *
 
@@ -499,52 +499,36 @@ class AjaxChartView(TemplateView):
 
     def __init__(self):
         super(AjaxChartView, self).__init__()
-        # self.stations = None
-        self.kind = None
+        self.station = 'station-01'
+        # self.kind = None
         # self.names = {"KSAN": "San Diego", "KPHX": "Phoenix", "KOKC": "OKC", "KTEB": "Hackensack"}
 
     def get_context_data(self, **kwargs):
+        rv = super(AjaxChartView, self).get_context_data(**kwargs)
         tz = timezone.get_current_timezone()
         cur_tm = datetime.now(tz)
         dlt = timedelta(hours=DEF_HOURS)
         st_tm = cur_tm - dlt
-        sp = None
-        data = []
-        # for st in self.stations:
-        vals = []
-        tmps = []
-        hums = []
-        list = TempHumidity.objects.filter(reading_time__gte=st_tm).order_by('reading_time')
+        try:
+            stn = Station.objects.get(name=self.station)
+        except Station.DoesNotExist:
+            return {}
+        rdngs = []
+        list = TempHumidity.objects.filter(station=stn).filter(reading_time__gte=st_tm).order_by('reading_time')
         for c in list:
-            # rt = timezone.make_aware(c.reading_time, tz)
-            if sp is None:
-                sp = c.reading_time
-            # v = None
-            # if self.kind == 't':
-            #     v = c.temperature
-            # elif self.kind == 'h':
-            #     v = c.humidity
-            # elif self.kind == 'b':
-            #     v = c.pressure
-            # elif self.kind == 'w':
-            #     v = c.wind_mph
-            # elif self.kind == 'p':
-            #     v = c.precip_1h
-            v = c.temperature
-            if v:
-                if v < -1000:
-                    v = 0
-                tmps.append(float('%.2f' % v))
-            v = c.humidity
-            if v:
-                if v < -1000:
-                    v = 0
-                hums.append(float('%.2f' % v))
-        if sp is None:
-            sp = datetime.now()
-        sp = timezone.localtime(sp, tz)
-        data.append({'name': 'station-01', 'start': {'yy': sp.year, 'mm': sp.month-1, 'dd': sp.day, 'hh': sp.hour, 'mi': sp.minute}, 'temp': tmps, 'hum': hums})
-        return {'result': data}
+            rt = timezone.localtime(c.reading_time, tz)
+            t = c.temperature
+            if t:
+                if t < -1000:
+                    t = 0
+                t = float('%.2f' % t)
+            h = c.humidity
+            if h:
+                if h < -1000:
+                    h = 0
+                h = float('%.2f' % h)
+            rdngs.append({'yy': rt.year, 'mm': rt.month-1, 'dd': rt.day, 'hh': rt.hour, 'mi': rt.minute, 'temp': t, 'hum': h})
+        return {'name': stn.name, 'readings': rdngs}
 
     def get(self, request, *args, **kwargs):
         # s = request.GET.get('stations', 'KSAN,KPHX')
@@ -644,6 +628,11 @@ def api_is_scheduled(request, *args, **kwargs):
 def post_rht(request, *args, **kwargs):
     if request.method == 'POST':
         logger.debug('post_rht')
+        slg = kwargs['slug']
+        try:
+            stn = Station.objects.get(name=slg)
+        except Station.DoesNotExist:
+            return HttpResponseBadRequest()
         auth = request.META['HTTP_AUTHORIZATION'] or None
         if auth is None or len(auth) < 10:
             return HttpResponseBadRequest()
@@ -654,13 +643,13 @@ def post_rht(request, *args, **kwargs):
         u = tkn.user
         logger.debug('authorized: %s' % u.username)
         d = json.loads(request.body)
-        rht = save_rht(d)
+        rht = save_rht(stn, d)
         if rht:
-            return JsonResponse({"result": "success", "user_id": u.id, "rht_id": rht.id })
+            return JsonResponse({"result": "success", "user_id": u.id, "station_id": stn.id, "rht_id": rht.id })
     return HttpResponseBadRequest()
 
 
-def save_rht(d):
+def save_rht(stn, d):
     if d is None:
         return
     tm = d.get('time', None)
@@ -679,6 +668,7 @@ def save_rht(d):
     if rht is not None:
         return
     rht = TempHumidity()
+    rht.station = stn
     rht.time_key = tk
     rht.temperature = t
     rht.humidity = h
