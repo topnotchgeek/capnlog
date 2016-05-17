@@ -250,6 +250,8 @@ class WeatherView(WebsiteView):
         if rv is None:
             rv = {}
         rv['stations'] = ['station-01']
+        rv['auto_refresh'] = True
+        rv['auto_refresh_secs'] = 300
         return rv
 
 
