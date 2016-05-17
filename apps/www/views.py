@@ -627,8 +627,8 @@ def api_is_scheduled(request, *args, **kwargs):
 @csrf_exempt
 def post_rht(request, *args, **kwargs):
     if request.method == 'POST':
-        logger.debug('post_rht')
         slg = kwargs['slug']
+        logger.debug('post_rht: %s' % slg)
         try:
             stn = Station.objects.get(name=slg)
         except Station.DoesNotExist:
