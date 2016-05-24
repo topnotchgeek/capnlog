@@ -48,9 +48,23 @@
                     <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
             {% endif %}
                         <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
-                            <div style="min-height:48px;">
+                            <div style="min-height:84px;">
             {% if d.count > 0 %}
                             {{ d.day.day }}
+                {% if d.amf %}
+                    <br/><span class="small">{{ d.amf.ts_create|date:"h:i" }}
+                    {% if d.aml %}
+                        - {{ d.aml.ts_create|date:"h:ia" }}
+                    {% endif %}
+                    </span>
+                {% endif %}
+                {% if d.pmf %}
+                    <br/><span class="small">{{ d.pmf.ts_create|date:"h:i" }}
+                    {% if d.pml %}
+                        - {{ d.pml.ts_create|date:"h:ia" }}
+                    {% endif %}
+                    </span>
+                {% endif %}
                             <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}<a>
             {% else %}
                 {{ d.day.day }}
