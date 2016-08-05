@@ -103,13 +103,14 @@ def update_schedule():
         return
     on = []
     pad = timedelta(seconds=1800)
+    pad2 = timedelta(seconds=2700)
     sr = pa.sun_rise
     FMT = "%H:%M:%S"
     st = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0),tz) - pad
-    et = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0), tz) + pad
+    et = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, sr.hour, sr.minute, sr.second, 0), tz) + pad2
     on.append({'start': '%s' % st.strftime(FMT), 'stop': '%s' % et.strftime(FMT)})
     ss = pa.sun_set
-    st = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0),tz) - pad
+    st = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0),tz) - pad2
     et = timezone.make_aware(datetime(cur_tm.year, cur_tm.month, cur_tm.day, ss.hour, ss.minute, ss.second, 0), tz) + pad
     on.append({'start': '%s' % st.strftime(FMT), 'stop': '%s' % et.strftime(FMT)})
     sch = {
