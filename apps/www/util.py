@@ -94,7 +94,7 @@ def do_daily(query=None):
 def update_schedule():
     pa = do_daily()
     if pa is None:
-        return;
+        return
     tz = timezone.get_current_timezone()
     cur_tm = timezone.make_aware(datetime.now(), tz)
     try:
@@ -121,6 +121,7 @@ def update_schedule():
     wc.schedule = json.dumps(sch)
     wc.save()
     return '%s: %s' % (wc, wc.schedule)
+
 
 def first_day_before(dt, dow):
     tz = timezone.get_current_timezone()
