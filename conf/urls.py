@@ -18,7 +18,7 @@ from django.contrib import admin
 
 from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
     post_img, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled, \
-    WebcamView, WcMonthView, post_rht, AjaxChartView
+    WebcamView, WcMonthView, post_rht, AjaxChartView, HiLoView
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -42,6 +42,8 @@ urlpatterns = [
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', WcMonthView.as_view(), name='wc_month'),
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayInTheLifeView.as_view(), name='adil'),
     url(r'^webcam/(?P<slug>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<hour>[0-9]{2})/$', AdilHourView.as_view(), name='adil_hour'),
+
+    url(r'^weather/(?P<station>[-\w]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', HiLoView.as_view(), name='weather-hilo'),
 
     url(r'^login/$', wrapped_login, name='login'),
     url(r'^logout/$', wrapped_logout, name='logout'),

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if hilo %}
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="" style="padding-top: 16px;">
+        {% if prev_month %}
+{#                <a href="{% url 'wc_month' webcam.slug prev_month.year|stringformat:"04d" prev_month.month|stringformat:"02d" %}" class=""><span class="glyphicon glyphicon-chevron-left"></span> {{ prev_month|date:"M" }}</a>#}
+        {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="center-block">
+                <h3>{{ page_title }} <span class="small">{{ now|date:"M Y" }}</span></h3>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="pull-right" style="padding-top: 16px; padding-right: 0px;">
+        {% if next_month %}
+{#                <a href="{% url 'wc_month' webcam.slug next_month.year|stringformat:"04d" next_month.month|stringformat:"02d" %}" class="">{{ next_month|date:"M" }} <span class="glyphicon glyphicon-chevron-right"></span></a>#}
+        {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-10">
+            <table id="tbl_cal" class="table table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+        {% for d in hilo %}
+            {% if forloop.counter0 < 7 %}
+            <th style="width:14%; text-align: center">{{ d.date|date:"D" }}</th>
+            {% endif %}
+        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+        {% for d in hilo %}
+            {% if d.date.weekday == 6 %}
+                {% if forloop.counter0 > 0 %}
+                    </tr>
+                {% endif %}
+                    <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
+            {% endif %}
+                        <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
+                            <div style="min-height:84px;">
+                            {{ d.date.day }}
+            {% if d.temperature__min %}
+                                <p style="padding-left:8px;">Lo {{ d.temperature__min }},
+                                Hi {{ d.temperature__max }}<br/>
+                                Avg {{ d.temperature__avg|floatformat:"2" }}</p>
+            {% endif %}
+                            </div>
+                        </td>
+        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-1">
+        </div>
+    </div>
+    {% else %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>{{ page_title }}</h3>
+{#                <p><a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a></p>#}
+{% comment %}
+        {% if rht %}
+                <p>
+                As of {{ rht.reading_time }} the temperature is {{ rht.temperature }} and the relative humidity is {{ rht.humidity }}%.
+                </p>
+        {% endif %}
+{% endcomment %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style type="text/css">
+        .cal-hdr {
+            min-height: 24px;
+{#            float: left;#}
+{#            border-left:1px solid #222;#}
+{#            padding: 4px;#}
+        }
+        .cal-day {
+            min-height: 48px;
+{#            padding: 4px;#}
+        }
+
+        .brdr-br {
+            border-bottom:1px solid #222;
+            border-right:1px solid #222;
+        }
+
+        .brdr-t {
+            border-top: 1px solid #222;
+        }
+
+        .brdr-l {
+            border-left: 1px solid #222;
+        }
+
+        .cal-empty {
+            background-color: #aaaaaa;
+{#            padding: 4px;#}
+        }
+        .cal-week {
+{#            max-width: 336px;#}
+            clear: both;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+
+{% block jquery_on_doc_ready %}
+{% endblock %}

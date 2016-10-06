@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login, logout
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.db.models import Avg, Min, Max
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
@@ -556,6 +557,50 @@ class AjaxChartView(TemplateView):
     def render_to_response(self, context):
         s = json.dumps(context)
         return HttpResponse(s, content_type='application/json')
+
+
+class HiLoView(TemplateView):
+
+    template_name = 'www/hilo.html'
+
+    def __init__(self):
+        super(HiLoView, self).__init__()
+        self.station = 'station-01'
+        # self.kind = None
+        # self.names = {"KSAN": "San Diego", "KPHX": "Phoenix", "KOKC": "OKC", "KTEB": "Hackensack"}
+
+    def get_context_data(self, **kwargs):
+        rv = super(HiLoView, self).get_context_data(**kwargs)
+        tz = timezone.get_current_timezone()
+        cur_tm = timezone.make_aware(datetime.now())
+        sta_nm = self.kwargs['station']
+        y = int(self.kwargs['year'])
+        m = int(self.kwargs['month'])
+        rv['page_title'] = 'Highs and Lows %02d/%d' % (m, y)
+        ct = timezone.make_aware(datetime(y, m, 1), tz)
+        ld = last_day_of_month(ct)
+        try:
+            sta = Station.objects.get(name=sta_nm)
+        except Station.DoesNotExist:
+            sta = None
+        # st = timezone.make_aware(datetime(y, m, 1, 00, 00, 00), tz)
+        # et = timezone.make_aware(datetime(y, m, ld.day, 23, 59, 59), tz)
+        # dtes = sta.temphumidity_set.filter(reading_time__range=(st,et)).datetimes('reading_time', 'day')
+        if sta:
+            hilo = []
+            for d in range(1, ld.day+1):
+                k = '%04d-%02d-%02d' % (y, m,  d)
+                # dte = datetime.strptime(k, '%Y-%m-%d')
+                st = timezone.make_aware(datetime(y, m, d, 00, 00, 00), tz)
+                et = timezone.make_aware(datetime(y, m, d, 23, 59, 59), tz)
+                d = {'date': st}
+                th = sta.temphumidity_set.filter(reading_time__range=(st,et))
+                if th.count() > 0:
+                    d.update(th.aggregate(Min('temperature'), Max('temperature'), Avg('temperature')))
+                hilo.append(d)
+            rv['hilo'] = hilo
+        return rv
+
 
 
 @csrf_exempt
