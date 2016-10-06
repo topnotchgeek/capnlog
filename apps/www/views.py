@@ -578,9 +578,13 @@ class HiLoView(TemplateView):
         m = int(self.kwargs['month'])
         rv['page_title'] = 'Highs and Lows %02d/%d' % (m, y)
         d1 = timezone.make_aware(datetime(y, m, 1), tz)
-
         # lastD = last_day_after(last_day_of_month(ct), 5)
         ld = last_day_of_month(d1)
+        oneDay = timedelta(days=1)
+        rv['prev_month'] = d1 - oneDay
+        nm = ld + oneDay
+        if nm < cur_tm:
+            rv['next_month'] = nm
         hilo = []
         if d1.weekday() != 6:
             firstD = first_day_before(d1, 6)
@@ -596,6 +600,7 @@ class HiLoView(TemplateView):
         # et = timezone.make_aware(datetime(y, m, ld.day, 23, 59, 59), tz)
         # dtes = sta.temphumidity_set.filter(reading_time__range=(st,et)).datetimes('reading_time', 'day')
         if sta:
+            rv['station'] = sta
             for d in range(1, ld.day+1):
                 # k = '%04d-%02d-%02d' % (y, m,  d)
                 # dte = datetime.strptime(k, '%Y-%m-%d')
