@@ -577,8 +577,17 @@ class HiLoView(TemplateView):
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         rv['page_title'] = 'Highs and Lows %02d/%d' % (m, y)
-        ct = timezone.make_aware(datetime(y, m, 1), tz)
-        ld = last_day_of_month(ct)
+        d1 = timezone.make_aware(datetime(y, m, 1), tz)
+
+        # lastD = last_day_after(last_day_of_month(ct), 5)
+        ld = last_day_of_month(d1)
+        hilo = []
+        if d1.weekday() != 6:
+            firstD = first_day_before(d1, 6)
+            dlt = d1 - firstD
+            for i in range(dlt.days):
+                dx = firstD + timedelta(days=i)
+                hilo.append({'date': dx})
         try:
             sta = Station.objects.get(name=sta_nm)
         except Station.DoesNotExist:
@@ -587,9 +596,8 @@ class HiLoView(TemplateView):
         # et = timezone.make_aware(datetime(y, m, ld.day, 23, 59, 59), tz)
         # dtes = sta.temphumidity_set.filter(reading_time__range=(st,et)).datetimes('reading_time', 'day')
         if sta:
-            hilo = []
             for d in range(1, ld.day+1):
-                k = '%04d-%02d-%02d' % (y, m,  d)
+                # k = '%04d-%02d-%02d' % (y, m,  d)
                 # dte = datetime.strptime(k, '%Y-%m-%d')
                 st = timezone.make_aware(datetime(y, m, d, 00, 00, 00), tz)
                 et = timezone.make_aware(datetime(y, m, d, 23, 59, 59), tz)
@@ -598,7 +606,7 @@ class HiLoView(TemplateView):
                 if th.count() > 0:
                     d.update(th.aggregate(Min('temperature'), Max('temperature'), Avg('temperature')))
                 hilo.append(d)
-            rv['hilo'] = hilo
+        rv['hilo'] = hilo
         return rv
 
 
