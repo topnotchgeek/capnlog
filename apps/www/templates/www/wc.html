@@ -48,7 +48,9 @@
                     <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
             {% endif %}
                         <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
-                            <div style="min-height:84px;">
+                            <div id="ajaxday_{{ forloop.counter0 }}" style="min-height:84px;">
+                            {{ d.day.day }}
+{% comment %}
             {% if d.count > 0 %}
                             {{ d.day.day }}
                 {% if d.amf %}
@@ -65,10 +67,11 @@
                     {% endif %}
                     </span>
                 {% endif %}
-                            <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}<a>
+                            <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}</a>
             {% else %}
                 {{ d.day.day }}
             {% endif %}
+{% endcomment %}
                             </div>
                         </td>
         {% endfor %}
@@ -156,8 +159,20 @@
 
 {% block extra_js %}
     <script type="text/javascript">
+        function load_day(elid, urlIn) {
+            $.ajax({
+                type: "GET",
+                url: urlIn,
+                success: function(resp) {
+                    $("#"+elid).html(resp);
+                }
+            });
+        }
     </script>
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
+    {% for d in all_days %}
+        load_day("ajaxday_{{ forloop.counter0 }}", "{% url 'wc_day' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}");
+    {% endfor %}
 {% endblock %}

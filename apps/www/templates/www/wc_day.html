@@ -1,0 +1,20 @@
+<div style="">
+    {{ day.day }}
+    {% if count > 0 %}
+        {% if amf %}
+            <br/><span class="small">{{ amf.ts_create|date:"h:i" }}
+            {% if aml %}
+                - {{ aml.ts_create|date:"h:ia" }}
+            {% endif %}
+            </span>
+        {% endif %}
+        {% if pmf %}
+            <br/><span class="small">{{ pmf.ts_create|date:"h:i" }}
+            {% if pml %}
+                - {{ pml.ts_create|date:"h:ia" }}
+            {% endif %}
+            </span>
+        {% endif %}
+        <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug day.year|stringformat:"04d" day.month|stringformat:"02d" day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ count }} image{{ count|pluralize }}</a>
+    {% endif %}
+</div>

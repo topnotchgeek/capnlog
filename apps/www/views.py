@@ -402,6 +402,58 @@ class WcMonthView(DetailView):
         return rv
 
 
+class WcDayView(TemplateView):
+    template_name = 'www/wc_day.html'
+
+    def get_context_data(self, **kwargs):
+        rv = super(WcDayView, self).get_context_data(**kwargs)
+        try:
+            wc = Webcam.objects.get(slug=self.kwargs['slug'])
+        except Webcam.DoesNotExist:
+            wc = None
+        y = int(self.kwargs['year'])
+        m = int(self.kwargs['month'])
+        d = int(self.kwargs['day'])
+        tz = timezone.get_current_timezone()
+        curD = datetime(y, m, d)
+        sfd = None
+        if wc:
+            sfd = wc.snaps_for_day(curD)
+        cnt = sfd.count() if sfd else 0
+        fst = None
+        lst = None
+        am = None
+        pm = None
+        amf = None
+        aml = None
+        pmf = None
+        pml = None
+        noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
+        if cnt > 0:
+            fst = sfd.earliest('ts_create')
+            lst = sfd.latest('ts_create')
+            am = sfd.filter(ts_create__lt=noon)
+            pm = sfd.filter(ts_create__gt=noon)
+        if am and am.count() > 0:
+            amf = am.earliest('ts_create')
+            aml = am.latest('ts_create')
+        if pm and pm.count() > 0:
+            pmf = pm.earliest('ts_create')
+            pml = pm.latest('ts_create')
+        rv.update({'webcam': wc,
+                    'day': curD,
+                    'count': cnt,
+                    'earliest': fst,
+                    'latest': lst,
+                    'am': am,
+                    'pm': pm,
+                    'aml': aml,
+                    'amf': amf,
+                    'pmf': pmf,
+                    'pml': pml})
+        return rv
+
+
 class AdilHomeView(WebsiteView):
 
     template_name = 'www/adil_home.html'
