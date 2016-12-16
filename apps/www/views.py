@@ -351,26 +351,26 @@ class WcMonthView(DetailView):
                 noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
                 sfd = self.object.snaps_for_day(curD)
                 cnt = sfd.count()
-                fst = None
-                lst = None
-                am = None
-                pm = None
-                amf = None
-                aml = None
-                pmf = None
-                pml = None
-                if cnt > 0:
-                    fst = sfd.earliest('ts_create')
-                    lst = sfd.latest('ts_create')
-                    am = sfd.filter(ts_create__lt=noon)
-                    pm = sfd.filter(ts_create__gt=noon)
-                if am and am.count() > 0:
-                    amf = am.earliest('ts_create')
-                    aml = am.latest('ts_create')
-                if pm and pm.count() > 0:
-                    pmf = pm.earliest('ts_create')
-                    pml = pm.latest('ts_create')
-                allD.append({'day': curD, 'count': cnt, 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
+                # fst = None
+                # lst = None
+                # am = None
+                # pm = None
+                # amf = None
+                # aml = None
+                # pmf = None
+                # pml = None
+                # if cnt > 0:
+                #     fst = sfd.earliest('ts_create')
+                #     lst = sfd.latest('ts_create')
+                #     am = sfd.filter(ts_create__lt=noon)
+                #     pm = sfd.filter(ts_create__gt=noon)
+                # if am and am.count() > 0:
+                #     amf = am.earliest('ts_create')
+                #     aml = am.latest('ts_create')
+                # if pm and pm.count() > 0:
+                #     pmf = pm.earliest('ts_create')
+                #     pml = pm.latest('ts_create')
+                allD.append({'day': curD, 'count': cnt})    #, 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
                 curD = curD + dlt
         # rv['webcam'] = self.webcam
         dlt = timedelta(days=1)
