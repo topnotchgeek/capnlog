@@ -49,9 +49,8 @@ class StationViewSet(viewsets.ModelViewSet):
             rht = stn.create_reading(json.loads(request.body))
             if rht:
                 return JsonResponse({"result": "success", "station_id": stn.id, "rht_id": rht.id }, status=201)
-        except ValueError:
-            pass
-        return HttpResponseBadRequest()
+        except ValueError, e:
+            return HttpResponseBadRequest(reason=e.message)
 
 
 class TempHumViewSet(viewsets.ModelViewSet):
@@ -85,13 +84,20 @@ class WebcamViewSet(viewsets.ModelViewSet):
         wc = self.get_object()
         tz = timezone.get_current_timezone()
         ct = timezone.make_aware(datetime.now(), tz)
-        y = int(request.query_params.get('y', ct.year))
-        m = int(request.query_params.get('m', ct.month))
-        d = int(request.query_params.get('d', ct.day))
-
-        sd = timezone.make_aware(datetime(y, m, d, 0, 0, 0),tz)
-        ed = timezone.make_aware(datetime(y, m, d, 23, 59, 59),tz)
-        return JsonResponse(data=SnapshotSerializer(wc.snapshot_set.filter(ts_create__range=(sd,ed)), many=True, context={'request': request}).data, safe=False)
+        try:
+            y = int(request.query_params.get('y', ct.year))
+            m = int(request.query_params.get('m', ct.month))
+            d = int(request.query_params.get('d', ct.day))
+            h = int(request.query_params.get('h', -1))
+            if h >= 0:
+                sd = timezone.make_aware(datetime(y, m, d, h, 0, 0),tz)
+                ed = timezone.make_aware(datetime(y, m, d, h, 59, 59),tz)
+            else:
+                sd = timezone.make_aware(datetime(y, m, d, 0, 0, 0),tz)
+                ed = timezone.make_aware(datetime(y, m, d, 23, 59, 59),tz)
+            return JsonResponse(data=SnapshotSerializer(wc.snapshot_set.filter(ts_create__range=(sd,ed)), many=True, context={'request': request}).data, safe=False)
+        except ValueError, e:
+            return HttpResponseBadRequest(reason=e.message)
 
 
 class SnapshotViewSet(viewsets.ModelViewSet):
