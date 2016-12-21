@@ -16,9 +16,9 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from apps.www.views import HomeView, BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
-    post_img, wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, api_is_scheduled, \
-    WebcamView, WcMonthView, WcDayView, post_rht, AjaxChartView, HiLoView
+from apps.www.views import BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
+    wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, \
+    WebcamView, WcMonthView, WcDayView, AjaxChartView, HiLoView
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -33,9 +33,7 @@ urlpatterns = [
     url(r'^weather$', WeatherView.as_view(), name='weather'),
     url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
     url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
-    url(r'^api_post/(?P<slug>[-\w]+)/$', post_img, name='api_post'),
-    url(r'^api_sched/(?P<slug>[-\w]+)/$', api_is_scheduled, name='is_sched'),
-    url(r'^post_rht/(?P<slug>[-\w]+)/$', post_rht, name='post_rht'),
+    # url(r'^post_rht/(?P<slug>[-\w]+)/$', post_rht, name='post_rht'),
     url(r'^api_chart$', AjaxChartView.as_view(), name='ajax_chart'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),

@@ -3,17 +3,13 @@ import os
 import logging
 
 from django.contrib.auth.models import User, Group
-from django.http.response import JsonResponse, HttpResponseBadRequest, HttpResponse
-from django.utils import timezone
+from django.http.response import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from rest_framework import viewsets
-from rest_framework.authtoken.models import Token
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import detail_route
 
-from datetime import datetime
-from conf import settings
 from .serializers import UserSerializer, GroupSerializer, EntrySerializer, TempHumSerializer, SnapshotSerializer, \
-    WebcamSerializer
-from .models import BlogEntry, TempHumidity, Webcam, Snapshot
+    WebcamSerializer, StationSerializer
+from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +34,23 @@ class EntryViewSet(viewsets.ModelViewSet):
     serializer_class = EntrySerializer
 
 
+class StationViewSet(viewsets.ModelViewSet):
+    lookup_field = 'name'
+    queryset = Station.objects.all()
+    serializer_class = StationSerializer
+
+    @detail_route(methods=['post'])
+    def reading(self, request, name=None):
+        stn = self.get_object()
+        try:
+            rht = stn.create_reading(json.loads(request.body))
+            if rht:
+                return JsonResponse({"result": "success", "station_id": stn.id, "rht_id": rht.id }, status=201)
+        except ValueError:
+            pass
+        return HttpResponseBadRequest()
+
+
 class TempHumViewSet(viewsets.ModelViewSet):
     queryset = TempHumidity.objects.order_by('-reading_time')[:24]
     serializer_class = TempHumSerializer
@@ -51,11 +64,12 @@ class WebcamViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def snapshot(self, request, slug=None):
         wc = self.get_object()
-        if wc:
-            d = json.loads(request.body)
-            ss = wc.create_snap(d)
+        try:
+            ss = wc.create_snap(json.loads(request.body))
             if ss:
-                return JsonResponse({"result": "success", "webcam_id": wc.slug, "img_id": ss.id })
+                return JsonResponse({"result": "success", "webcam_id": wc.slug, "img_id": ss.id}, status=201)
+        except ValueError:
+            pass
         return HttpResponseBadRequest()
 
     @detail_route(methods=['get'])

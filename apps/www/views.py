@@ -668,147 +668,68 @@ class HiLoView(TemplateView):
         return rv
 
 
-def _obtain_token(request):
-        auth = request.META['HTTP_AUTHORIZATION'] or None
-        if auth is None or len(auth) < 10:
-            return None
-        try:
-            tkn = Token.objects.get(key=auth[6:])
-        except Token.DoesNotExist:
-            tkn = None
-        return tkn
-
-
-@csrf_exempt
-def post_img(request, *args, **kwargs):
-    if request.method == 'POST':
-        logger.debug('post_img')
-        tkn = _obtain_token(request)
-        if tkn is None:
-            return HttpResponseBadRequest()
-        slg = kwargs['slug']
-        try:
-            wc = Webcam.objects.get(slug=slg)
-        except Webcam.DoesNotExist:
-            logger.debug('webcam not found: %d' % slg)
-            return None
-        # auth = request.META['HTTP_AUTHORIZATION'] or None
-        # if auth is None or len(auth) < 10:
-        #     return HttpResponseBadRequest()
-        # try:
-        #     tkn = Token.objects.get(key=auth[6:])
-        # except Token.DoesNotExist:
-        u = tkn.user
-        logger.debug('authorized: %s' % u.username)
-        d = json.loads(request.body)
-        ss = wc.create_snap(d)
-        if ss:
-            return JsonResponse({"result": "success", "user_id": u.id, "img_id": ss.id })
-    return HttpResponseBadRequest()
-
-
-# def save_image(d, wc):
-#     fnm = d.get('fname', None)
-#     img = d.get('imgdata', None)
-#     opts = d.get('img_opts', None)
-#     if fnm is None or img is None:
-#         logger.debug('save_image: bad data')
-#         return None
-#     tz = timezone.get_current_timezone()
-#     n = datetime.now(tz)
-#     dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
-#     if not os.path.exists(dir):
-#         os.makedirs(dir)
-#     path = os.path.join(dir, fnm)
-#     logger.debug('save_image: %s' % path)
-#     fout = open(path, "wb")
-#     fout.write(img.decode("base64"))
-#     fout.close()
-#     ss = Snapshot()
-#     ss.webcam = wc
-#     ss.img_name = fnm
-#     ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
-#     if opts:
-#         ss.img_opts = json.dumps(opts)
-#     ss.save()
-#     return ss
-
-
-def api_is_scheduled(request, *args, **kwargs):
-    if request.method != 'GET':
-        return HttpResponseBadRequest()
-    # auth = request.META['HTTP_AUTHORIZATION'] or None
-    # if auth is None or len(auth) < 10:
-    #     return HttpResponseBadRequest()
-    # try:
-    #     tkn = Token.objects.get(key=auth[6:])
-    # except Token.DoesNotExist:
-    #     return HttpResponseBadRequest()
-    tkn = _obtain_token(request)
-    if tkn is None:
-        return HttpResponseBadRequest()
-    u = tkn.user
-    logger.debug('authorized: %s' % u.username)
-    slg = kwargs['slug']
-    try:
-        wc = Webcam.objects.get(slug=slg)
-    except Webcam.DoesNotExist:
-        logger.debug('webcam not found: %s' % slg)
-        wc = None
-    return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
-
-
-@csrf_exempt
-def post_rht(request, *args, **kwargs):
-    if request.method == 'POST':
-        tkn = _obtain_token(request)
-        if tkn is None:
-            return HttpResponseBadRequest()
-        slg = kwargs['slug']
-        logger.debug('post_rht: %s' % slg)
-        try:
-            stn = Station.objects.get(name=slg)
-        except Station.DoesNotExist:
-            return HttpResponseBadRequest()
-        # auth = request.META['HTTP_AUTHORIZATION'] or None
-        # if auth is None or len(auth) < 10:
-        #     return HttpResponseBadRequest()
-        # try:
-        #     tkn = Token.objects.get(key=auth[6:])
-        # except Token.DoesNotExist:
-        #     return HttpResponseBadRequest()
-        u = tkn.user
-        logger.debug('authorized: %s' % u.username)
-        d = json.loads(request.body)
-        rht = save_rht(stn, d)
-        if rht:
-            return JsonResponse({"result": "success", "user_id": u.id, "station_id": stn.id, "rht_id": rht.id })
-    return HttpResponseBadRequest()
-
-
-def save_rht(stn, d):
-    if d is None:
-        return
-    tm = d.get('time', None)
-    t = d.get('temp', -999.99)
-    h = d.get('humidity', -1.0)
-    if tm is None or t == -999.99 or h == -1.0:
-        return
-    rtm = datetime.strptime(tm, '%Y-%m-%d %H:%M:%S')
-
-    tk = TempHumidity.make_time_key(rtm)
-    rht = None
-    try:
-        rht = TempHumidity.objects.get(time_key=tk)
-    except TempHumidity.DoesNotExist:
-        rht = None
-    if rht is not None:
-        return
-    rht = TempHumidity()
-    rht.station = stn
-    rht.time_key = tk
-    rht.temperature = t
-    rht.humidity = h
-    rht.reading_time = timezone.make_aware(rtm, timezone.get_current_timezone())
-    rht.save()
-    return rht
+# def _obtain_token(request):
+#         auth = request.META['HTTP_AUTHORIZATION'] or None
+#         if auth is None or len(auth) < 10:
+#             return None
+#         try:
+#             tkn = Token.objects.get(key=auth[6:])
+#         except Token.DoesNotExist:
+#             tkn = None
+#         return tkn
+#
+#
+# @csrf_exempt
+# def post_rht(request, *args, **kwargs):
+#     if request.method == 'POST':
+#         tkn = _obtain_token(request)
+#         if tkn is None:
+#             return HttpResponseBadRequest()
+#         slg = kwargs['slug']
+#         logger.debug('post_rht: %s' % slg)
+#         try:
+#             stn = Station.objects.get(name=slg)
+#         except Station.DoesNotExist:
+#             return HttpResponseBadRequest()
+#         # auth = request.META['HTTP_AUTHORIZATION'] or None
+#         # if auth is None or len(auth) < 10:
+#         #     return HttpResponseBadRequest()
+#         # try:
+#         #     tkn = Token.objects.get(key=auth[6:])
+#         # except Token.DoesNotExist:
+#         #     return HttpResponseBadRequest()
+#         u = tkn.user
+#         logger.debug('authorized: %s' % u.username)
+#         d = json.loads(request.body)
+#         rht = save_rht(stn, d)
+#         if rht:
+#             return JsonResponse({"result": "success", "user_id": u.id, "station_id": stn.id, "rht_id": rht.id })
+#     return HttpResponseBadRequest()
+#
+#
+# def save_rht(stn, d):
+#     if d is None:
+#         return
+#     tm = d.get('time', None)
+#     t = d.get('temp', -999.99)
+#     h = d.get('humidity', -1.0)
+#     if tm is None or t == -999.99 or h == -1.0:
+#         return
+#     rtm = datetime.strptime(tm, '%Y-%m-%d %H:%M:%S')
+#
+#     tk = TempHumidity.make_time_key(rtm)
+#     rht = None
+#     try:
+#         rht = TempHumidity.objects.get(time_key=tk)
+#     except TempHumidity.DoesNotExist:
+#         rht = None
+#     if rht is not None:
+#         return
+#     rht = TempHumidity()
+#     rht.station = stn
+#     rht.time_key = tk
+#     rht.temperature = t
+#     rht.humidity = h
+#     rht.reading_time = timezone.make_aware(rtm, timezone.get_current_timezone())
+#     rht.save()
+#     return rht

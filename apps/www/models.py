@@ -325,6 +325,32 @@ class Station(models.Model):
     def __unicode__(self):
         return '%s' % self.name
 
+    def create_reading(self, d):
+        if d is None:
+            return None
+        tm = d.get('time', None)
+        t = d.get('temp', -999.99)
+        h = d.get('humidity', -1.0)
+        if tm is None or t == -999.99 or h == -1.0:
+            return None
+        rtm = datetime.strptime(tm, '%Y-%m-%d %H:%M:%S')
+        tk = TempHumidity.make_time_key(rtm)
+        rht = None
+        try:
+            rht = TempHumidity.objects.get(time_key=tk)
+        except TempHumidity.DoesNotExist:
+            rht = None
+        if rht is not None:
+            return None
+        rht = TempHumidity()
+        rht.station = self
+        rht.time_key = tk
+        rht.temperature = t
+        rht.humidity = h
+        rht.reading_time = timezone.make_aware(rtm, timezone.get_current_timezone())
+        rht.save()
+        return rht
+
 
 class TempHumidity(models.Model):
     TIME_KEY_FMT = '%Y%m%d_%H%M'

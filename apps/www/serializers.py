@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import BlogEntry, TempHumidity, Webcam, Snapshot
+from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,6 +19,12 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BlogEntry
         fields = ('title', 'entry_text', 'create_time', 'author')
+
+
+class StationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Station
+        fields = ('name', 'status', 'flag')
 
 
 class TempHumSerializer(serializers.ModelSerializer):
