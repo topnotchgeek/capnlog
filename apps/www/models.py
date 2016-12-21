@@ -265,6 +265,11 @@ class Snapshot(models.Model):
                 return j['image_effect']
         return ''
 
+    @property
+    def image_url(self):
+        img = self.img_name if len(self.img_path) == 0 else '%s/%s' % (self.img_path, self.img_name)
+        return '%simg/webcam/%s' % (settings.STATIC_URL, img)
+
 
 class WuAstronomy(models.Model):
     status = models.SmallIntegerField(default=0, blank=True, null=True)
