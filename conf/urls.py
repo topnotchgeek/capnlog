@@ -33,7 +33,6 @@ urlpatterns = [
     url(r'^weather$', WeatherView.as_view(), name='weather'),
     url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
     url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
-    # url(r'^post_rht/(?P<slug>[-\w]+)/$', post_rht, name='post_rht'),
     url(r'^api_chart$', AjaxChartView.as_view(), name='ajax_chart'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),
