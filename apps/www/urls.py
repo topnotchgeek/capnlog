@@ -8,6 +8,8 @@ router.register('users', UserViewSet)
 router.register('groups', GroupViewSet)
 router.register('entries', EntryViewSet)
 router.register('temps', TempHumViewSet)
+router.register('webcams', WebcamViewSet)
+router.register('images', SnapshotViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

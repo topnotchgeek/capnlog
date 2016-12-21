@@ -209,6 +209,32 @@ class Webcam(models.Model):
             self.slug = s
         super(Webcam, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
+    def create_snap(self, d):
+        fnm = d.get('fname', None)
+        img = d.get('imgdata', None)
+        opts = d.get('img_opts', None)
+        if fnm is None or img is None:
+            logger.debug('create_snap: bad data')
+            return None
+        tz = timezone.get_current_timezone()
+        n = datetime.now(tz)
+        dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        path = os.path.join(dir, fnm)
+        # logger.debug('save_image: %s' % path)
+        fout = open(path, "wb")
+        fout.write(img.decode("base64"))
+        fout.close()
+        ss = Snapshot()
+        ss.webcam = self
+        ss.img_name = fnm
+        ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
+        if opts:
+            ss.img_opts = json.dumps(opts)
+        ss.save()
+        return ss
+
 
 class Snapshot(models.Model):
     webcam = ForeignKey(Webcam)
