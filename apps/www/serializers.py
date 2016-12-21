@@ -21,25 +21,28 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('title', 'entry_text', 'create_time', 'author')
 
 
-class StationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Station
-        fields = ('name', 'status', 'flag')
-
-
-class TempHumSerializer(serializers.ModelSerializer):
+class TempHumSerializer(serializers.HyperlinkedModelSerializer):
+    station = serializers.ReadOnlyField(source='station.name')
     class Meta:
         model = TempHumidity
-        fields = ('reading_time', 'temperature', 'humidity')
+        fields = ('reading_time', 'temperature', 'humidity', 'station')
 
 
-class SnapshotSerializer(serializers.ModelSerializer):
+class StationSerializer(serializers.HyperlinkedModelSerializer):
+    readings = TempHumSerializer(many=True, read_only=True)
+    class Meta:
+        model = Station
+        fields = ('name', 'status', 'flag', 'readings')
+
+
+class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
+    webcam = serializers.ReadOnlyField(source='webcam.slug')
     class Meta:
         model = Snapshot
-        fields = ('img_path', 'img_name', 'img_opts', 'ts_create')
+        fields = ('url', 'img_path', 'img_name', 'img_opts', 'ts_create', 'image_url', 'webcam')
 
 
-class WebcamSerializer(serializers.ModelSerializer):
+class WebcamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Webcam
-        fields = ('name', 'description', 'schedule', 'latitude', 'longitude')
+        fields = ('url', 'name', 'description', 'schedule', 'latitude', 'longitude')
