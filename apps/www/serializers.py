@@ -36,10 +36,10 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
-    webcam = serializers.ReadOnlyField(source='webcam.slug')
+    # webcam = serializers.ReadOnlyField(source='webcam.slug')
     class Meta:
         model = Snapshot
-        fields = ('url', 'ts_create', 'image_url', 'webcam')
+        fields = ('url', 'ts_create', 'image_url')  #, 'webcam')
 
 
 class WebcamSerializer(serializers.HyperlinkedModelSerializer):
