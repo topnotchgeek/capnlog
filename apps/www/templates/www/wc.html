@@ -86,7 +86,15 @@
         <div class="row">
             <div class="col-sm-12">
                 <h3>{{ webcam.name }}</h3>
+                <p>{{ total_snaps }} total image{{ total_snaps|pluralize }} </p>
                 <p><a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a></p>
+            {% if months %}
+                <h4>Previous months</h4>
+                {% for mth in months %}
+                    <p><a href="{% url 'wc_month' webcam.slug mth.year|stringformat:"04d" mth.month|stringformat:"02d"%}">{{ mth|date:"F Y" }}</a></p>
+                {% endfor %}
+            {% endif %}
+{% comment %}
         {% if scheduled_on %}
                 <p>Scheduled on every day
             {% for s in scheduled_on %}
@@ -105,12 +113,6 @@
                 {% endif %}
             from {{ s.start|slice:":5" }} to {{ s.stop|slice:":5" }}
             {% endfor %}
-                </p>
-        {% endif %}
-{% comment %}
-        {% if rht %}
-                <p>
-                As of {{ rht.reading_time }} the temperature is {{ rht.temperature }} and the relative humidity is {{ rht.humidity }}%.
                 </p>
         {% endif %}
 {% endcomment %}

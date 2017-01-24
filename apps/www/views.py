@@ -295,15 +295,22 @@ class WebcamView(DetailView):
         # allD = []
         schOn = []
         schOff = []
+        mths = None
+        cnt = 0
         if self.object:
+            mths = self.object.snapshot_set.datetimes('ts_create', 'month', order='DESC')
+            cnt = self.object.snapshot_set.count()
             rv['page_title'] = self.object.name
             if len(self.object.schedule) > 0:
-                sch = json.loads(self.object.schedule)
-                if sch:
-                    all = sch.get('all', None)
-                    if all:
-                        schOn = all.get('on', None)
-                        schOff = all.get('off', None)
+                try:
+                    sch = json.loads(self.object.schedule)
+                    if sch:
+                        all = sch.get('all', None)
+                        if all:
+                            schOn = all.get('on', None)
+                            schOff = all.get('off', None)
+                except ValueError:
+                    pass
             # fst = self.object.snapshot_set.earliest('ts_create')
             # lst = self.object.snapshot_set.latest('ts_create')
             # rv['first_day'] = fst.ts_create
@@ -312,6 +319,8 @@ class WebcamView(DetailView):
         # rv['all_days'] = allD
         rv['scheduled_on'] = schOn
         rv['scheduled_off'] = schOff
+        rv['months'] = mths
+        rv['total_snaps'] = cnt
         return rv
 
 
@@ -616,7 +625,7 @@ class HiLoView(TemplateView):
 
     def __init__(self):
         super(HiLoView, self).__init__()
-        self.station = 'station-01'
+        # self.station = 'station-01'
         # self.kind = None
         # self.names = {"KSAN": "San Diego", "KPHX": "Phoenix", "KOKC": "OKC", "KTEB": "Hackensack"}
 
