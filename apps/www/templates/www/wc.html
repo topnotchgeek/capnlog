@@ -91,7 +91,10 @@
             {% if months %}
                 <h4>Previous months</h4>
                 {% for mth in months %}
+                    {% if now.month == mth.month %}
+                    {% else %}
                     <p><a href="{% url 'wc_month' webcam.slug mth.year|stringformat:"04d" mth.month|stringformat:"02d"%}">{{ mth|date:"F Y" }}</a></p>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
 {% comment %}
