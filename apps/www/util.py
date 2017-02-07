@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-from .models import WuAstronomy, Webcam
+from .models import WuAstronomy, Webcam, TempHumidity
 from .weather_underground import *
 from conf import settings
 
@@ -46,7 +46,7 @@ class FileBasedImageManager(ImageManager):
             self.add_image(os.path.basename(f))
 
 
-DEF_QUERY = 'KSAN'
+DEF_QUERY = '91916'     #'KSAN'
 DATE_KEY_FORMAT = '%Y%m%d'
 
 
@@ -131,6 +131,7 @@ def first_day_before(dt, dow):
         rv = rv - dlt
     return rv
 
+
 def last_day_after(dt, dow):
     tz = timezone.get_current_timezone()
     rv = timezone.make_aware(datetime(dt.year, dt.month, dt.day), tz)
@@ -138,6 +139,7 @@ def last_day_after(dt, dow):
     while rv.weekday() != dow:
         rv = rv + dlt
     return rv
+
 
 def last_day_of_month(dt):
     tz = timezone.get_current_timezone()
@@ -147,3 +149,9 @@ def last_day_of_month(dt):
         rv = timezone.make_aware(datetime(dt.year, dt.month, dt.day), tz)
         dt = dt + dlt
     return rv
+
+
+def update_stats():
+    dates = TempHumidity.objects.datetimes('reading_time', 'day')
+    for dte in dates:
+        pass
