@@ -71,7 +71,7 @@ class WebcamViewSet(viewsets.ModelViewSet):
         try:
             ss = wc.create_snap(json.loads(request.body))
             if ss:
-                self.make_latest(ss)
+                self._make_latest(ss)
                 return JsonResponse(SnapshotSerializer(instance=ss, context={'request': request}).data, status=201)    #{"result": "success", "webcam_id": wc.slug, "img_id": ss.id}
         except ValueError:
             pass
@@ -107,8 +107,7 @@ class WebcamViewSet(viewsets.ModelViewSet):
         except ValueError, e:
             return HttpResponseBadRequest(reason=e.message)
 
-    def make_latest(self, ss):
-        ss = Snapshot()
+    def _make_latest(self, ss):
         sfnm = ss.img_name
         sdir = os.path.join(settings.WEBCAM_IMAGE_PATH, ss.img_path)
         src = os.path.join(sdir, sfnm)
