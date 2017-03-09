@@ -507,9 +507,6 @@ class DayInTheLifeView(WebsiteView):
     template_name = 'www/adil.html'
     webcam = None
 
-    def get_page_title(self):
-        return 'A Day in Pictures'
-
     def get_context_data(self, **kwargs):
         rv = super(DayInTheLifeView, self).get_context_data(**kwargs)
         tz = timezone.get_current_timezone()
@@ -523,18 +520,18 @@ class DayInTheLifeView(WebsiteView):
         pdate = wdate - dlt
         ndate = wdate + dlt
         self.webcam = None
-        snaps = None
         try:
             self.webcam =  Webcam.objects.get(slug=cslug)
+            rv['webcam'] = self.webcam
+            rv['all_dates'] = None if self.webcam is None else self.webcam.snapshot_set.all().datetimes('ts_create', 'day')
+            rv['which_date'] = wdate
+            rv['prev_date'] = pdate
+            if ndate < td:
+                rv['next_date'] = ndate
+            rv['snaps_by_hour'] = self._build_sbh(y, m, d)
+            rv['page_title'] = '%s %s' % (self.webcam.name, wdate.strftime("%b %d, %Y"))
         except Webcam.DoesNotExist:
             pass
-        rv['webcam'] = self.webcam
-        rv['all_dates'] = None if self.webcam is None else self.webcam.snapshot_set.all().datetimes('ts_create', 'day')
-        rv['which_date'] = wdate
-        rv['prev_date'] = pdate
-        if ndate < td:
-            rv['next_date'] = ndate
-        rv['snaps_by_hour'] = self._build_sbh(y, m, d)
         return rv
 
     def _build_sbh(self, y, m, d):

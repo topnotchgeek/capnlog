@@ -11,6 +11,8 @@ router.register('stations', StationViewSet)
 router.register('temps', TempHumViewSet)
 router.register('webcams', WebcamViewSet)
 router.register('images', SnapshotViewSet)
+router.register('presence', PresenceViewSet)
+router.register('sensors', SensorViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

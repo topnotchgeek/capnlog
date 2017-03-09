@@ -5,15 +5,16 @@ from datetime import datetime
 from shutil import copyfile
 
 from django.contrib.auth.models import User, Group
-from django.http.response import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.http.response import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.utils import timezone
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import detail_route
 
 from conf import settings
 from .serializers import UserSerializer, GroupSerializer, EntrySerializer, TempHumSerializer, SnapshotSerializer, \
-    WebcamSerializer, StationSerializer
-from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station
+    WebcamSerializer, StationSerializer, PresenceSerializer, SensorSerializer
+from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station, Presence, Sensor
 
 logger = logging.getLogger(__name__)
 
@@ -124,3 +125,28 @@ class SnapshotViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return super(SnapshotViewSet, self).get_queryset()
+
+
+class PresenceViewSet(viewsets.ModelViewSet):
+    lookup_field = 'device_id'
+    serializer_class = PresenceSerializer
+    queryset = Presence.objects.all()
+
+    def get_queryset(self):
+        return super(PresenceViewSet, self).get_queryset()
+
+
+class SensorViewSet(viewsets.ModelViewSet):
+    lookup_field = 'entity_id'
+    serializer_class = SensorSerializer
+    queryset = Sensor.objects.all()
+
+    def get_queryset(self):
+        return super(SensorViewSet, self).get_queryset()
+
+    @detail_route(methods=['get'])
+    def state(self, request, entity_id):
+        sen = self.get_object()
+        if sen is None:
+            return HttpResponseNotFound()
+        return JsonResponse({"entity_id": sen.entity_id, "state": sen.value }, status=200)

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station
+from .models import BlogEntry, TempHumidity, Webcam, Snapshot, Station, Presence, Sensor
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -46,3 +46,15 @@ class WebcamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Webcam
         fields = ('url', 'name', 'description', 'schedule', 'latitude', 'longitude')
+
+
+class PresenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Presence
+        fields = ('status', 'flag', 'user_id', 'device_id', 'latitude', 'longitude')
+
+
+class SensorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sensor
+        fields = ('entity_id', 'reading_time', 'value')

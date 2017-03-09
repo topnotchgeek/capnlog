@@ -378,3 +378,28 @@ class TempHumidity(models.Model):
     @classmethod
     def make_time_key(cls, dte):
         return dte.strftime(cls.TIME_KEY_FMT)
+
+
+class Presence(models.Model):
+    status = models.SmallIntegerField(default=0, blank=True, null=True)
+    flag = models.SmallIntegerField(default=0, blank=True, null=True)
+    reading_time = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False)
+
+    user_id = models.CharField(max_length=255)
+    device_id = models.CharField(max_length=512)
+    latitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
+    longitude = DecimalField(max_digits=12, decimal_places=9, default=-999.99)
+
+    def __unicode__(self):
+        return '%s - %s %12.9f %12.9f' % (self.user_id, self.device_id, self.latitude, self.longitude)
+
+
+class Sensor(models.Model):
+    status = models.SmallIntegerField(default=0, blank=True, null=True)
+    flag = models.SmallIntegerField(default=0, blank=True, null=True)
+    reading_time = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False)
+    entity_id = models.CharField(max_length=255, blank=True, null=True)
+    value = models.CharField(max_length=255, blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s - %s' % (self.entity_id, self.value)
