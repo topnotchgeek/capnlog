@@ -9,11 +9,8 @@
     <div class="row">
         <div class="col-sm-12">
             <h4>Welcome!</h4>
-    {% if onboard  %}
-            <p>We've been aboard now for {{ days_aboard }} day{{ days_aboard|pluralize }}!</p>
-    {% else %}
-        <p>We'll be moving aboard in {{ days_aboard }} day{{ days_aboard|pluralize }}!</p>
-    {% endif %}
+            <p><img src="{{ STATIC_URL }}img/webcam/latest.jpg" height="180" width="280"/></p>
+            <p><a href="{% url 'webcam' 'boat-cam-1' %}">Webcam</a></p>
         </div>
     </div>
 {% endblock content %}

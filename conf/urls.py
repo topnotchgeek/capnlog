@@ -16,23 +16,24 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from apps.www.views import BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, BlogCreateView, \
+from apps.www.views import BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, \
+    BlogCreateView, \
     wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, \
-    WebcamView, WcMonthView, WcDayView, AjaxChartView, HiLoView
+    WebcamView, WcMonthView, WcDayView, AjaxChartView, HiLoView, HomeView
 from apps.www import urls as api_urls
 
 urlpatterns = [
 
-    url(r'^$', BlogView.as_view(), name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
     # url(r'^blog$', BlogView.as_view(), name='blog-home'),
-    url(r'^blog/view/(?P<slug>[-\w]+)/$', BlogDetailView.as_view(), name='blog-detail'),
-    url(r'^blog/edit/(?P<slug>[-\w]+)/$', BlogEditView.as_view(), name='blog-edit'),
-    url(r'^blog/add$', BlogCreateView.as_view(), name='blog-add'),
-    url(r'^visitors$', VisitorsView.as_view(), name='visitors'),
-    url(r'^photos$', PhotosView.as_view(), name='photos'),
-    url(r'^weather$', WeatherView.as_view(), name='weather'),
-    url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
-    url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
+    # url(r'^blog/view/(?P<slug>[-\w]+)/$', BlogDetailView.as_view(), name='blog-detail'),
+    # url(r'^blog/edit/(?P<slug>[-\w]+)/$', BlogEditView.as_view(), name='blog-edit'),
+    # url(r'^blog/add$', BlogCreateView.as_view(), name='blog-add'),
+    # url(r'^visitors$', VisitorsView.as_view(), name='visitors'),
+    # url(r'^photos$', PhotosView.as_view(), name='photos'),
+    # url(r'^weather$', WeatherView.as_view(), name='weather'),
+    # url(r'^boat_cam$', BoatCamView.as_view(), name='boat_cam'),
+    # url(r'^adil$', AdilHomeView.as_view(), name='adil_home'),
     url(r'^api_chart$', AjaxChartView.as_view(), name='ajax_chart'),
 
     url(r'^webcam/(?P<slug>[-\w]+)/$', WebcamView.as_view(), name='webcam'),
