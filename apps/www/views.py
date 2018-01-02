@@ -346,6 +346,7 @@ class WcMonthView(DetailView):
                     if all:
                         schOn = all.get('on', None)
                         schOff = all.get('off', None)
+            ndx = 0
             while curD <= lastD:
                 # noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
                 sfd = self.object.snaps_for_day(curD)
@@ -369,9 +370,10 @@ class WcMonthView(DetailView):
                 # if pm and pm.count() > 0:
                 #     pmf = pm.earliest('ts_create')
                 #     pml = pm.latest('ts_create')
-                allD.append({'day': curD, 'count': cnt})
+                allD.append({'index': ndx, 'day': curD, 'count': cnt})
                 # , 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
-                curD = curD + dlt
+                curD += dlt
+                ndx += 1
         # rv['webcam'] = self.webcam
         pm = firstD - dlt
         # nm = lastD + dlt

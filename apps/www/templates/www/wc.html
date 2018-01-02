@@ -33,7 +33,7 @@
                 <thead>
                     <tr>
         {% for d in all_days %}
-            {% if forloop.counter0 < 7 %}
+            {% if d.index < 7 %}
             <th style="width:14%; text-align: center">{{ d.day|date:"D" }}</th>
             {% endif %}
         {% endfor %}
@@ -42,13 +42,13 @@
                 <tbody>
         {% for d in all_days %}
             {% if d.day.weekday == 6 %}
-                {% if forloop.counter0 > 0 %}
+                {% if d.index > 0 %}
                     </tr>
                 {% endif %}
-                    <tr id="tbl_calweek_{{ forloop.counter0 }}" class="">
+                    <tr id="tbl_calweek_{{ d.index }}" class="">
             {% endif %}
-                        <td id="calday_{{ forloop.counter0 }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
-                            <div id="ajaxday_{{ forloop.counter0 }}" style="min-height:84px;">
+                        <td id="calday_{{ d.index }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
+                            <div id="ajaxday_{{ d.index }}" style="min-height:84px;">
                             {{ d.day.day }}
 {% comment %}
             {% if d.count > 0 %}
@@ -182,9 +182,9 @@
 
 {% block jquery_on_doc_ready %}
     {% for d in all_days %}
-        {% if d.count > 0 and d.day.year == cur_month.year and d.day.month == cur_month.month %}
-        $("#ajaxday_{{ forloop.counter0 }}").addClass('loading');
-        load_day("ajaxday_{{ forloop.counter0 }}", "{% url 'wc_day' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}");
+        {% if d.count > 0 and d.day.month == cur_month.month and d.day.year == cur_month.year %}
+        $("#ajaxday_{{ d.index }}").addClass('loading');
+        load_day("ajaxday_{{ d.index }}", "{% url 'wc_day' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}");
         {% endif %}
     {% endfor %}
 {% endblock %}
