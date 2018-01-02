@@ -298,6 +298,7 @@ class WebcamView(DetailView):
         mths = None
         cnt = 0
         if self.object:
+            # years = self.object.snapshot_set.datetimes('ts_create', 'year', order='DESC')
             mths = self.object.snapshot_set.datetimes('ts_create', 'month', order='DESC')
             cnt = self.object.snapshot_set.count()
             rv['page_title'] = self.object.name
@@ -356,7 +357,7 @@ class WcMonthView(DetailView):
                         schOn = all.get('on', None)
                         schOff = all.get('off', None)
             while curD <= lastD:
-                noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
+                # noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
                 sfd = self.object.snaps_for_day(curD)
                 cnt = sfd.count()
                 # fst = None
@@ -389,7 +390,7 @@ class WcMonthView(DetailView):
             rv['next_month'] = nm
         rv['first_day'] = firstD
         rv['last_day'] = lastD
-        rv['now'] = ct
+        rv['now'] = tday
         rv['all_days'] = allD
 
         if self.object:
@@ -670,3 +671,19 @@ class HiLoView(TemplateView):
                 hilo.append(d)
         rv['hilo'] = hilo
         return rv
+
+
+class CrlsView(TemplateView):
+    template_name = 'n/a'
+
+    def get_context_data(self, **kwargs):
+        rv = super(CrlsView, self).get_context_data(**kwargs)
+        nm = None
+        if self.kwargs:
+            nm = self.kwargs.get('crlname')
+        rv['crlname'] = nm
+        return rv
+
+    def render_to_response(self, context):
+        context.pop('view')
+        return JsonResponse(context)

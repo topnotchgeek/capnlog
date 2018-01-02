@@ -48,6 +48,9 @@
     {% endfor %}
                 </ul>
             </div>
+            <div class="pull-right">
+                <a href="{% url 'wc_month' webcam.slug which_date.year|stringformat:"04d" which_date.month|stringformat:"02d" %}" class="">{{ which_date|date:"M" }}</a>
+            </div>
         </div>
     </div>
     <div class="row">
