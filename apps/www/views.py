@@ -386,10 +386,11 @@ class WcMonthView(DetailView):
         pm = firstD - dlt
         nm = lastD + dlt
         rv['prev_month'] = pm
-        if nm < tday:
+        if nm < ct:
             rv['next_month'] = nm
         rv['first_day'] = firstD
         rv['last_day'] = lastD
+        rv['cur_month'] = ct
         rv['now'] = tday
         rv['all_days'] = allD
 
