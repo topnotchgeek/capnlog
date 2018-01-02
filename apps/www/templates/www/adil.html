@@ -41,7 +41,7 @@
                 <ul id="nav_list" class="nav nav-pills">
     {% for sbh in snaps_by_hour %}
         {% with cnt=sbh.snaps|length %}
-                    <li id="hour_{{ sbh.hour|date:"H" }}" role="presentation" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"hA" }}</a></li>
+                    <li id="hour_{{ sbh.hour|date:"H" }}" role="presentation" class="nav-hour" {% if cnt == 0 %}style="display: none"{% endif %}><a href="#">{{ sbh.hour|date:"g A" }}</a></li>
         {% endwith %}
     {% empty %}
         <li>No images were captured today</li>
