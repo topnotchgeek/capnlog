@@ -11,7 +11,7 @@
         </div>
         <div class="col-sm-4">
             <div class="center-block">
-            <h3>{{ webcam.name }} <span class="small">{{ which_date|date:"M j, Y" }}</span></h3>
+            <h3>{{ webcam.name }} <span class="small"><a href="{% url 'wc_month' webcam.slug which_date.year|stringformat:"04d" which_date.month|stringformat:"02d" %}" class="">{{ which_date|date:"M" }} </a>{{ which_date|date:"j, Y" }}</span></h3>
             </div>
         </div>
         <div class="col-sm-4">
@@ -49,7 +49,6 @@
                 </ul>
             </div>
             <div class="pull-right">
-                <a href="{% url 'wc_month' webcam.slug which_date.year|stringformat:"04d" which_date.month|stringformat:"02d" %}" class="">{{ which_date|date:"M" }}</a>
             </div>
         </div>
     </div>
