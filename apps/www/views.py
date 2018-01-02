@@ -286,19 +286,11 @@ class WebcamView(DetailView):
 
     def get_context_data(self, **kwargs):
         rv = super(WebcamView, self).get_context_data(**kwargs)
-        tz = timezone.get_current_timezone()
-        ct = timezone.make_aware(datetime.now(), tz)
-        # dlt = timedelta(days=1)
-        # firstD = first_day_before(datetime(ct.year, ct.month, 1, tzinfo=tz), 6)
-        # lastD = last_day_after(last_day_of_month(ct), 5)
-        # curD = firstD
-        # allD = []
         schOn = []
         schOff = []
         mths = None
         cnt = 0
         if self.object:
-            # years = self.object.snapshot_set.datetimes('ts_create', 'year', order='DESC')
             mths = self.object.snapshot_set.datetimes('ts_create', 'month', order='DESC')
             cnt = self.object.snapshot_set.count()
             rv['page_title'] = self.object.name
@@ -312,10 +304,8 @@ class WebcamView(DetailView):
                             schOff = all.get('off', None)
                 except ValueError:
                     pass
-            # fst = self.object.snapshot_set.earliest('ts_create')
-            # lst = self.object.snapshot_set.latest('ts_create')
-            # rv['first_day'] = fst.ts_create
-            # rv['last_day'] = lst.ts_create
+        tz = timezone.get_current_timezone()
+        ct = timezone.make_aware(datetime.now(), tz)
         rv['now'] = ct
         # rv['all_days'] = allD
         rv['scheduled_on'] = schOn
@@ -379,14 +369,15 @@ class WcMonthView(DetailView):
                 # if pm and pm.count() > 0:
                 #     pmf = pm.earliest('ts_create')
                 #     pml = pm.latest('ts_create')
-                allD.append({'day': curD, 'count': cnt})    #, 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
+                allD.append({'day': curD, 'count': cnt})
+                # , 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
                 curD = curD + dlt
         # rv['webcam'] = self.webcam
-        dlt = timedelta(days=1)
         pm = firstD - dlt
-        nm = lastD + dlt
+        # nm = lastD + dlt
         rv['prev_month'] = pm
-        if nm < ct:
+        nm = last_day_of_month(ct) + dlt
+        if nm <= tday:
             rv['next_month'] = nm
         rv['first_day'] = firstD
         rv['last_day'] = lastD
