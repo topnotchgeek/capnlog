@@ -271,6 +271,33 @@ class Snapshot(models.Model):
         return '%simg/webcam/%s' % (settings.STATIC_URL, img)
 
 
+class SnapshotDailyStat(models.Model):
+    webcam = ForeignKey(Webcam)
+    for_date = models.DateField(auto_created=False, auto_now=False, auto_now_add=False)
+    am_start = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
+    am_end = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
+    am_count = models.IntegerField(default=0)
+    pm_start = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
+    pm_start = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
+    pm_count = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return '%s, %s: %d' % (self.webcam.name, self.for_date, self.total_count)
+
+    @property
+    def total_count(self):
+        return self.am_count + self.pm_count
+
+    @classmethod
+    def lookup(cls, webcam, for_date=None):
+        if for_date is None:
+            for_date = datetime.now()
+        set = SnapshotDailyStat.objects.filter(webcam=webcam).filter(for_date=for_date)
+        if set.count() == 1:
+            return set.all()[0]
+        return None
+
+
 class WuAstronomy(models.Model):
     status = models.SmallIntegerField(default=0, blank=True, null=True)
     flag = models.SmallIntegerField(default=0, blank=True, null=True)
