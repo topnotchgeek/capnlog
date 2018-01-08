@@ -2,11 +2,15 @@ import glob
 import os
 import random
 from datetime import datetime, timedelta
+
+import logging
 from django.utils import timezone
 
-from .models import WuAstronomy, Webcam, TempHumidity
+from .models import WuAstronomy, Webcam, TempHumidity, SnapshotDailyStat
 from .weather_underground import *
 from conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class ImageManager(object):
@@ -155,3 +159,53 @@ def update_stats():
     dates = TempHumidity.objects.datetimes('reading_time', 'day')
     for dte in dates:
         pass
+
+
+def update_daily_stats(wc_id=1, dte=None):
+    try:
+        wc = Webcam.objects.get(pk=wc_id)
+    except Webcam.DoesNotExist:
+        logger.warning('no webcam found for: %d' % wc_id)
+        return None
+    if dte is None:
+        dte = datetime.now()
+    for_date = timezone.make_aware(datetime(year=dte.year, month=dte.month, day=dte.day), timezone.get_current_timezone())
+    ds = SnapshotDailyStat.lookup(webcam=wc, for_date=for_date)
+    if ds is None:
+        ds = SnapshotDailyStat.objects.create(webcam=wc, for_date=for_date)
+    snaps = wc.snaps_for_day(for_date)
+    cnt = snaps.count() if snaps else 0
+    am = None
+    pm = None
+    chg = False
+    noon = datetime(for_date.year, for_date.month, for_date.day, 12, 0, 0)
+    if cnt > 0:
+        # fst = snaps.earliest('ts_create')
+        # lst = snaps.latest('ts_create')
+        am = snaps.filter(ts_create__lt=noon)
+        pm = snaps.filter(ts_create__gt=noon)
+    if am and am.count() > 0:
+        chg = True
+        ds.am_count = am.count()
+        ds.am_start = am.earliest('ts_create').ts_create
+        ds.am_end = am.latest('ts_create').ts_create
+    if pm and pm.count() > 0:
+        chg = True
+        ds.pm_count = pm.count()
+        ds.pm_start = pm.earliest('ts_create').ts_create
+        ds.pm_end = pm.latest('ts_create').ts_create
+    if chg:
+        ds.save()
+    return ds
+    # rv.update({'webcam': wc,
+    #            'day': for_date,
+    #            'count': cnt,
+    #            'earliest': fst,
+    #            'latest': lst,
+    #            'am': am,
+    #            'pm': pm,
+    #            'aml': aml,
+    #            'amf': amf,
+    #            'pmf': pmf,
+    #            'pml': pml})
+
