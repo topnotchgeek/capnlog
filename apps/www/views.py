@@ -330,8 +330,6 @@ class WcMonthView(DetailView):
         tz = timezone.get_current_timezone()
         dom1 = timezone.make_aware(datetime(y, m, 1), tz)
         tday = timezone.make_aware(datetime.now(), tz)
-        if y == tday.year and m == tday.month:
-            update_daily_stats(self.object.id, tday)
         dlt = timedelta(days=1)
         firstD = first_day_before(dom1, 6)
         lastD = last_day_after(last_day_of_month(dom1), 5)
@@ -343,6 +341,7 @@ class WcMonthView(DetailView):
         lst = None
         if self.object:
             if y == tday.year and m == tday.month and self.object.is_scheduled():
+                update_daily_stats(self.object.id, tday)
                 rv['auto_refresh'] = True
                 rv['auto_refresh_secs'] = 60
             rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
