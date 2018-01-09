@@ -118,6 +118,24 @@ class WebcamViewSet(viewsets.ModelViewSet):
         copyfile(src, dst)
         logger.debug('make_latest: copied %s to %s' % (src, dst))
 
+    @detail_route(methods=['get'])
+    def latest_snap(self, request, slug=None):
+        wc = self.get_object()
+        tz = timezone.get_current_timezone()
+        try:
+            latest = wc.snapshot_set.latest('ts_create')
+        except Webcam.DoesNotExist:
+            latest = None
+        if latest is None:
+            return HttpResponse(status=404)
+        now = timezone.make_aware(datetime.now(), tz)
+        dlt = now - latest.ts_create
+        return JsonResponse(data={
+            'id': latest.id,
+            'age':  dlt.seconds,
+            'description' : '%s' % latest,
+            'url': latest.image_url
+        })
 
 class SnapshotViewSet(viewsets.ModelViewSet):
     serializer_class = SnapshotSerializer
