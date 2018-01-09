@@ -328,19 +328,21 @@ class WcMonthView(DetailView):
         y = int(self.kwargs['year'])
         m = int(self.kwargs['month'])
         tz = timezone.get_current_timezone()
-        ct = timezone.make_aware(datetime(y, m, 1), tz)
+        dom1 = timezone.make_aware(datetime(y, m, 1), tz)
         tday = timezone.make_aware(datetime.now(), tz)
         if y == tday.year and m == tday.month:
             update_daily_stats(self.object.id, tday)
         dlt = timedelta(days=1)
-        firstD = first_day_before(timezone.make_aware(datetime(y, m, 1), tz), 6)
-        lastD = last_day_after(last_day_of_month(ct), 5)
+        firstD = first_day_before(dom1, 6)
+        lastD = last_day_after(last_day_of_month(dom1), 5)
         curD = firstD
         allD = []
         schOn = []
         schOff = []
+        fst = None
+        lst = None
         if self.object:
-            rv['page_title'] = '%s - %s' % (self.object.name, ct.strftime('%b %Y'))
+            rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
             if len(self.object.schedule) > 0:
                 sch = json.loads(self.object.schedule)
                 if sch:
@@ -350,52 +352,12 @@ class WcMonthView(DetailView):
                         schOff = all.get('off', None)
             ndx = 0
             while curD <= lastD:
-                # noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
                 stats = SnapshotDailyStat.lookup(webcam=self.object, for_date=curD)
-                if stats is None:
-                    # stats = SnapshotDailyStat.objects.create(webcam=self.object, for_date=curD)
-                    # sfd = self.object.snaps_for_day(curD)
-                    stats = update_daily_stats(self.object.id, curD)
-                cnt = stats.total_count
-                # fst = None
-                # lst = None
-                # am = None
-                # pm = None
-                # amf = None
-                # aml = None
-                # pmf = None
-                # pml = None
-                # if cnt > 0:
-                #     fst = sfd.earliest('ts_create')
-                #     lst = sfd.latest('ts_create')
-                #     am = sfd.filter(ts_create__lt=noon)
-                #     pm = sfd.filter(ts_create__gt=noon)
-                # if am and am.count() > 0:
-                #     amf = am.earliest('ts_create')
-                #     aml = am.latest('ts_create')
-                # if pm and pm.count() > 0:
-                #     pmf = pm.earliest('ts_create')
-                #     pml = pm.latest('ts_create')
-                allD.append({'index': ndx, 'day': curD, 'count': cnt, 'stats': stats})
-                # , 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
+                # if stats is None:
+                #     stats = update_daily_stats(self.object.id, curD)
+                allD.append({'index': ndx, 'day': curD, 'count': 0 if stats is None else stats.total_count, 'stats': stats})
                 curD += dlt
                 ndx += 1
-        # rv['webcam'] = self.webcam
-        pm = firstD - dlt
-        # nm = lastD + dlt
-        rv['prev_month'] = pm
-        nm = last_day_of_month(ct) + dlt
-        if nm <= tday:
-            rv['next_month'] = nm
-        rv['first_day'] = firstD
-        rv['last_day'] = lastD
-        rv['cur_month'] = ct
-        rv['now'] = tday
-        rv['all_days'] = allD
-
-        # rv['all_days'] = SnapshotDailyStat.objects.filter(webcam=self.object).filter(for_date__range=(firstD, lastD))
-
-        if self.object:
             if len(self.object.schedule) > 0:
                 sch = json.loads(self.object.schedule)
                 if sch:
@@ -403,13 +365,24 @@ class WcMonthView(DetailView):
                     if all:
                         schOn = all.get('on', None)
                         schOff = all.get('off', None)
-            fst = self.object.snapshot_set.earliest('ts_create')
-            lst = self.object.snapshot_set.latest('ts_create')
-            rv['first_day'] = fst.ts_create
-            rv['last_day'] = lst.ts_create
+            fst = self.object.snapshot_set.earliest('ts_create').ts_create
+            lst = self.object.snapshot_set.latest('ts_create').ts_create
+
+        pm = firstD - dlt
+        rv['prev_month'] = pm
+        nm = last_day_of_month(dom1) + dlt
+        if nm <= tday:
+            rv['next_month'] = nm
+        # rv['first_day'] = firstD
+        # rv['last_day'] = lastD
+        rv['cur_month'] = dom1
+        rv['now'] = tday
+        rv['all_days'] = allD
+
+        rv['first_day'] = fst
+        rv['last_day'] = lst
         rv['scheduled_on'] = schOn
         rv['scheduled_off'] = schOff
-
         return rv
 
 
