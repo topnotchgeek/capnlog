@@ -50,6 +50,25 @@
                         <td id="calday_{{ d.index }}" class="">  {# {% if d.count == 0 %}cal-empty{% endif %} #}
                             <div id="ajaxday_{{ d.index }}" style="min-height:84px;">
                             {{ d.day.day }}
+            {% if d.stats %}
+                {% if d.stats.am_start %}
+                    <br/><span class="small">{{ d.stats.am_start|date:"h:i" }}
+                    {% if d.stats.am_end %}
+                        - {{ d.stats.am_end|date:"h:ia" }}
+                    {% endif %}
+                    </span>
+                {% endif %}
+                {% if d.stats.pm_start %}
+                    <br/><span class="small">{{ d.stats.pm_start|date:"h:i" }}
+                    {% if d.stats.pm_end %}
+                        - {{ d.stats.pm_end|date:"h:ia" }}
+                    {% endif %}
+                    </span>
+                {% endif %}
+                {% if d.count > 0 %}
+                <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}</a>
+                {% endif %}
+            {% endif %}
 {% comment %}
             {% if d.count > 0 %}
                             {{ d.day.day }}
@@ -181,10 +200,12 @@
 {% endblock %}
 
 {% block jquery_on_doc_ready %}
+{% comment %}
     {% for d in all_days %}
         {% if d.count > 0 and d.day.month == cur_month.month and d.day.year == cur_month.year %}
         $("#ajaxday_{{ d.index }}").addClass('loading');
         load_day("ajaxday_{{ d.index }}", "{% url 'wc_day' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}");
         {% endif %}
     {% endfor %}
+{% endcomment %}
 {% endblock %}

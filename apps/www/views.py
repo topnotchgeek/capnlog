@@ -330,6 +330,8 @@ class WcMonthView(DetailView):
         tz = timezone.get_current_timezone()
         ct = timezone.make_aware(datetime(y, m, 1), tz)
         tday = timezone.make_aware(datetime.now(), tz)
+        if y == tday.year and m == tday.month:
+            update_daily_stats(self.object.id, tday)
         dlt = timedelta(days=1)
         firstD = first_day_before(timezone.make_aware(datetime(y, m, 1), tz), 6)
         lastD = last_day_after(last_day_of_month(ct), 5)
@@ -349,8 +351,12 @@ class WcMonthView(DetailView):
             ndx = 0
             while curD <= lastD:
                 # noon = datetime(curD.year, curD.month, curD.day, 12, 0, 0)
-                sfd = self.object.snaps_for_day(curD)
-                cnt = sfd.count()
+                stats = SnapshotDailyStat.lookup(webcam=self.object, for_date=curD)
+                if stats is None:
+                    # stats = SnapshotDailyStat.objects.create(webcam=self.object, for_date=curD)
+                    # sfd = self.object.snaps_for_day(curD)
+                    stats = update_daily_stats(self.object.id, curD)
+                cnt = stats.total_count
                 # fst = None
                 # lst = None
                 # am = None
@@ -370,7 +376,7 @@ class WcMonthView(DetailView):
                 # if pm and pm.count() > 0:
                 #     pmf = pm.earliest('ts_create')
                 #     pml = pm.latest('ts_create')
-                allD.append({'index': ndx, 'day': curD, 'count': cnt})
+                allD.append({'index': ndx, 'day': curD, 'count': cnt, 'stats': stats})
                 # , 'earliest': fst, 'latest': lst, 'am': am, 'pm': pm, 'aml': aml, 'amf': amf, 'pmf': pmf, 'pml': pml })
                 curD += dlt
                 ndx += 1
@@ -386,6 +392,8 @@ class WcMonthView(DetailView):
         rv['cur_month'] = ct
         rv['now'] = tday
         rv['all_days'] = allD
+
+        # rv['all_days'] = SnapshotDailyStat.objects.filter(webcam=self.object).filter(for_date__range=(firstD, lastD))
 
         if self.object:
             if len(self.object.schedule) > 0:
