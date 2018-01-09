@@ -54,7 +54,7 @@
                 {% if d.stats.am_count == 0 %}
                     <br/>
                 {% else %}
-                    <br/><span class="small">{{ d.stats.am_start|date:"h:i" }}
+                    <br/><span class="small" style="margin-left: 8px">{{ d.stats.am_start|date:"h:i" }}
                     {% if d.stats.am_end %}
                         - {{ d.stats.am_end|date:"h:ia" }}
                     {% endif %}
@@ -63,14 +63,14 @@
                 {% if d.stats.pm_count == 0 %}
                     <br/>
                 {% else %}
-                    <br/><span class="small">{{ d.stats.pm_start|date:"h:i" }}
+                    <br/><span class="small" style="margin-left: 8px">{{ d.stats.pm_start|date:"h:i" }}
                     {% if d.stats.pm_end %}
                         - {{ d.stats.pm_end|date:"h:ia" }}
                     {% endif %}
                     </span>
                 {% endif %}
                 {% if d.count > 0 %}
-                <br/>&nbsp;&nbsp;<a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}</a>
+                <br/>&nbsp;&nbsp; <a href="{% url 'adil' webcam.slug d.day.year|stringformat:"04d" d.day.month|stringformat:"02d" d.day.day|stringformat:"02d"%}" class="btn btn-xs btn-primary">{{ d.count }} image{{ d.count|pluralize }}</a>
                 {% endif %}
             {% endif %}
 {% comment %}
