@@ -171,9 +171,11 @@ def update_daily_stats(wc_id=1, dte=None):
         dte = datetime.now()
     tz = timezone.get_current_timezone()
     for_date = timezone.make_aware(datetime(year=dte.year, month=dte.month, day=dte.day), tz)
+    logger.debug('lookup snapshot: %s %s' % (wc, for_date))
     ds = SnapshotDailyStat.lookup(webcam=wc, for_date=for_date)
     if ds is None:
         ds = SnapshotDailyStat.objects.create(webcam=wc, for_date=for_date)
+    logger.debug('updating snapshot: %s' % ds)
     snaps = wc.snaps_for_day(for_date)
     cnt = snaps.count() if snaps else 0
     am = None
@@ -181,8 +183,6 @@ def update_daily_stats(wc_id=1, dte=None):
     chg = False
     noon = timezone.make_aware(datetime(for_date.year, for_date.month, for_date.day, 12, 0, 0), tz)
     if cnt > 0:
-        # fst = snaps.earliest('ts_create')
-        # lst = snaps.latest('ts_create')
         am = snaps.filter(ts_create__lt=noon)
         pm = snaps.filter(ts_create__gt=noon)
     if am and am.count() > 0:
@@ -197,16 +197,6 @@ def update_daily_stats(wc_id=1, dte=None):
         ds.pm_end = pm.latest('ts_create').ts_create
     if chg:
         ds.save()
+    logger.debug('snapshot update complete: %s' % ds)
     return ds
-    # rv.update({'webcam': wc,
-    #            'day': for_date,
-    #            'count': cnt,
-    #            'earliest': fst,
-    #            'latest': lst,
-    #            'am': am,
-    #            'pm': pm,
-    #            'aml': aml,
-    #            'amf': amf,
-    #            'pmf': pmf,
-    #            'pml': pml})
 
