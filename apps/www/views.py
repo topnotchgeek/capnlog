@@ -369,7 +369,8 @@ class WcMonthView(DetailView):
             lst = self.object.snapshot_set.latest('ts_create').ts_create
 
         pm = firstD - dlt
-        rv['prev_month'] = pm
+        if fst and pm >= fst:
+            rv['prev_month'] = pm
         nm = last_day_of_month(dom1) + dlt
         if nm <= tday:
             rv['next_month'] = nm
