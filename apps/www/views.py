@@ -342,9 +342,9 @@ class WcMonthView(DetailView):
         fst = None
         lst = None
         if self.object:
-            if self.object.is_scheduled() and y == tday.year and m == tday.month:
+            if y == tday.year and m == tday.month and self.object.is_scheduled():
                 rv['auto_refresh'] = True
-                rv['auto_refresh_secs'] = 65
+                rv['auto_refresh_secs'] = 60
             rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
             if len(self.object.schedule) > 0:
                 sch = json.loads(self.object.schedule)
