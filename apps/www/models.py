@@ -278,7 +278,7 @@ class SnapshotDailyStat(models.Model):
     am_end = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
     am_count = models.IntegerField(default=0)
     pm_start = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
-    pm_start = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
+    pm_end = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
     pm_count = models.IntegerField(default=0)
 
     def __unicode__(self):
