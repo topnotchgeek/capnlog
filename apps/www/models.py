@@ -270,6 +270,15 @@ class Snapshot(models.Model):
         img = self.img_name if len(self.img_path) == 0 else '%s/%s' % (self.img_path, self.img_name)
         return '%simg/webcam/%s' % (settings.STATIC_URL, img)
 
+    @property
+    def age(self):
+        if self.ts_create is None:
+            return -1
+        tz = timezone.get_current_timezone()
+        now = timezone.make_aware(datetime.now(), tz)
+        dlt = now - self.ts_create
+        return dlt.seconds
+
 
 class SnapshotDailyStat(models.Model):
     webcam = ForeignKey(Webcam)

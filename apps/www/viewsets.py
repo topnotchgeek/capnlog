@@ -66,6 +66,10 @@ class WebcamViewSet(viewsets.ModelViewSet):
     serializer_class = WebcamSerializer
     queryset = Webcam.objects.all()
 
+    def retrieve(self, request, *args, **kwargs):
+        rv = super(WebcamViewSet, self).retrieve(request, *args, **kwargs)
+        return rv
+
     @detail_route(methods=['post'])
     def snapshot(self, request, slug=None):
         wc = self.get_object()
@@ -81,7 +85,11 @@ class WebcamViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def scheduled(self, request, slug=None):
         wc = self.get_object()
-        return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
+        if wc:
+            res = {'id': wc.id, 'scheduled': wc.is_scheduled()}
+            return JsonResponse(data=res)
+        return HttpResponse(status=404)
+        # return HttpResponse(status=200 if wc and wc.is_scheduled() else 404)
 
     @detail_route(methods=['get'])
     def snaps(self, request, slug=None):
@@ -95,16 +103,17 @@ class WebcamViewSet(viewsets.ModelViewSet):
             d = int(request.query_params.get('d', ct.day))
             h = int(request.query_params.get('h', -1))
             cnt = len(request.query_params.get('count', '')) > 0
-
+            sh = 0
+            eh = 23
             if h >= 0:
-                sd = timezone.make_aware(datetime(y, m, d, h, 0, 0),tz)
-                ed = timezone.make_aware(datetime(y, m, d, h, 59, 59),tz)
-            else:
-                sd = timezone.make_aware(datetime(y, m, d, 0, 0, 0),tz)
-                ed = timezone.make_aware(datetime(y, m, d, 23, 59, 59),tz)
+                sh = h
+                eh = h
+            sd = timezone.make_aware(datetime(y, m, d, sh, 0, 0),tz)
+            ed = timezone.make_aware(datetime(y, m, d, eh, 59, 59),tz)
+            qs = wc.snapshot_set.filter(ts_create__range=(sd,ed))
             if cnt:
-                return JsonResponse(data={'count': wc.snapshot_set.filter(ts_create__range=(sd,ed)).count()})
-            return JsonResponse(data=SnapshotSerializer(wc.snapshot_set.filter(ts_create__range=(sd,ed)), many=True, context={'request': request}).data, safe=False)
+                return JsonResponse(data={'count': qs.count()})
+            return JsonResponse(data=SnapshotSerializer(qs, many=True, context={'request': request}).data, safe=False)
         except ValueError, e:
             return HttpResponseBadRequest(reason=e.message)
 
@@ -121,21 +130,9 @@ class WebcamViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def latest_snap(self, request, slug=None):
         wc = self.get_object()
-        tz = timezone.get_current_timezone()
-        try:
-            latest = wc.snapshot_set.latest('ts_create')
-        except Webcam.DoesNotExist:
-            latest = None
-        if latest is None:
-            return HttpResponse(status=404)
-        now = timezone.make_aware(datetime.now(), tz)
-        dlt = now - latest.ts_create
-        return JsonResponse(data={
-            'id': latest.id,
-            'age':  dlt.seconds,
-            'description' : '%s' % latest,
-            'url': latest.image_url
-        })
+        if wc is None or wc.snapshot_set.count() == 0:
+            return HttpResponseNotFound()
+        return JsonResponse(data=SnapshotSerializer(wc.snapshot_set.latest('ts_create'), context={'request': request}).data)
 
 
 class SnapshotViewSet(viewsets.ModelViewSet):
