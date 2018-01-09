@@ -281,6 +281,9 @@ class SnapshotDailyStat(models.Model):
     pm_end = models.DateTimeField(auto_created=False, auto_now=False, auto_now_add=False, blank=True, null=True)
     pm_count = models.IntegerField(default=0)
 
+    class Meta:
+        unique_together = ('webcam', 'for_date')
+
     def __unicode__(self):
         return '%s, %s: %d' % (self.webcam.name, self.for_date, self.total_count)
 
