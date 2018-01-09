@@ -51,14 +51,18 @@
                             <div id="ajaxday_{{ d.index }}" style="min-height:84px;">
                             {{ d.day.day }}
             {% if d.stats %}
-                {% if d.stats.am_start %}
+                {% if d.stats.am_count == 0 %}
+                    <br/>
+                {% else %}
                     <br/><span class="small">{{ d.stats.am_start|date:"h:i" }}
                     {% if d.stats.am_end %}
                         - {{ d.stats.am_end|date:"h:ia" }}
                     {% endif %}
                     </span>
                 {% endif %}
-                {% if d.stats.pm_start %}
+                {% if d.stats.pm_count == 0 %}
+                    <br/>
+                {% else %}
                     <br/><span class="small">{{ d.stats.pm_start|date:"h:i" }}
                     {% if d.stats.pm_end %}
                         - {{ d.stats.pm_end|date:"h:ia" }}
