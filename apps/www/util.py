@@ -169,7 +169,8 @@ def update_daily_stats(wc_id=1, dte=None):
         return None
     if dte is None:
         dte = datetime.now()
-    for_date = timezone.make_aware(datetime(year=dte.year, month=dte.month, day=dte.day), timezone.get_current_timezone())
+    tz = timezone.get_current_timezone()
+    for_date = timezone.make_aware(datetime(year=dte.year, month=dte.month, day=dte.day), tz)
     ds = SnapshotDailyStat.lookup(webcam=wc, for_date=for_date)
     if ds is None:
         ds = SnapshotDailyStat.objects.create(webcam=wc, for_date=for_date)
@@ -178,7 +179,7 @@ def update_daily_stats(wc_id=1, dte=None):
     am = None
     pm = None
     chg = False
-    noon = datetime(for_date.year, for_date.month, for_date.day, 12, 0, 0)
+    noon = timezone.make_aware(datetime(for_date.year, for_date.month, for_date.day, 12, 0, 0), tz)
     if cnt > 0:
         # fst = snaps.earliest('ts_create')
         # lst = snaps.latest('ts_create')

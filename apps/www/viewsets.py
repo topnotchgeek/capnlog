@@ -137,6 +137,7 @@ class WebcamViewSet(viewsets.ModelViewSet):
             'url': latest.image_url
         })
 
+
 class SnapshotViewSet(viewsets.ModelViewSet):
     serializer_class = SnapshotSerializer
     queryset = Snapshot.objects.all()
