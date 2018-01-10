@@ -339,11 +339,11 @@ class WcMonthView(DetailView):
         schOff = []
         fst = None
         lst = None
+        ar_secs = 0
         if self.object:
             if y == tday.year and m == tday.month and self.object.is_scheduled():
                 update_daily_stats(self.object.id, tday)
-                rv['auto_refresh'] = True
-                rv['auto_refresh_secs'] = 60
+                ar_secs = 60
             rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
             if len(self.object.schedule) > 0:
                 sch = json.loads(self.object.schedule)
@@ -367,8 +367,8 @@ class WcMonthView(DetailView):
                     if all:
                         schOn = all.get('on', None)
                         schOff = all.get('off', None)
-            fst = self.object.snapshot_set.earliest('ts_create').ts_create
-            lst = self.object.snapshot_set.latest('ts_create').ts_create
+            fst = self.object.snapshot_set.earliest('ts_create')
+            lst = self.object.snapshot_set.latest('ts_create')
 
         pm = firstD - dlt
         if fst and pm >= fst:
@@ -381,11 +381,14 @@ class WcMonthView(DetailView):
         rv['cur_month'] = dom1
         rv['now'] = tday
         rv['all_days'] = allD
-
-        rv['first_day'] = fst
-        rv['last_day'] = lst
+        rv['latest_snap'] = lst
+        rv['first_day'] = None if fst is None else fst.ts_create
+        rv['last_day'] = None if lst is None else lst.ts_create
         rv['scheduled_on'] = schOn
         rv['scheduled_off'] = schOff
+        if ar_secs > 0:
+            rv['auto_refresh'] = True
+            rv['auto_refresh_secs'] = ar_secs
         return rv
 
 

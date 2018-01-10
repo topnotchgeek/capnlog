@@ -107,7 +107,7 @@
     </div>
     {% else %}
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-3">
                 <h3>{{ webcam.name }}</h3>
                 <p>{{ total_snaps }} total image{{ total_snaps|pluralize }} </p>
                 <p><a href="{% url 'adil' webcam.slug now.year|stringformat:"04d" now.month|stringformat:"02d" now.day|stringformat:"02d"%}">Today's images</a></p>
@@ -142,6 +142,11 @@
                 </p>
         {% endif %}
 {% endcomment %}
+            </div>
+            <div class="col-sm-9">
+        {% if latest_snap %}
+                <img src="{{ latest_snap.image_url }}" class="img img-responsive"/>
+        {% endif %}
             </div>
         </div>
     {% endif %}
