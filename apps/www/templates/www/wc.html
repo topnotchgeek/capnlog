@@ -120,9 +120,16 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
-{% comment %}
+            </div>
+            <div class="col-sm-9">
+                <h3>Latest Image</h3>
+        {% if latest_snap %}
+                <img src="{{ latest_snap.image_url }}" class="img img-responsive" title="{{ latest_snap.ts_create|date:"M j, Y g:iA" }}" alt="{{ latest_snap.ts_create|date:"M j, Y g:iA" }}"/>
+                <span class="small">{{ latest_snap.ts_create|date:"M j, Y g:iA" }}</span>
+        {% endif %}
+                <div>
         {% if scheduled_on %}
-                <p>Scheduled on every day
+                    <p>Scheduled on every day
             {% for s in scheduled_on %}
                 {% if forloop.counter0 > 0 %}
                 and
@@ -141,13 +148,7 @@
             {% endfor %}
                 </p>
         {% endif %}
-{% endcomment %}
-            </div>
-            <div class="col-sm-9">
-        {% if latest_snap %}
-                <img src="{{ latest_snap.image_url }}" class="img img-responsive" title="{{ latest_snap.ts_create|date:"M j, Y g:iA" }}" alt="{{ latest_snap.ts_create|date:"M j, Y g:iA" }}"/>
-                <span class="small">{{ latest_snap.ts_create|date:"M j, Y g:iA" }}</span>
-        {% endif %}
+                </div>
             </div>
         </div>
     {% endif %}
