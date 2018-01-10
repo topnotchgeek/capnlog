@@ -344,7 +344,6 @@ class WcMonthView(DetailView):
         fst = None
         lst = None
         ar_secs = 0
-        sched = None
         if self.object:
             if y == tday.year and m == tday.month and self.object.is_scheduled():
                 update_daily_stats(self.object.id, tday)
