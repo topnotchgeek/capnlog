@@ -312,6 +312,10 @@ class WebcamView(DetailView):
         rv['scheduled_off'] = schOff
         rv['months'] = mths
         rv['total_snaps'] = cnt
+        rv['latest_snap'] = self.object.snapshot_set.latest('ts_create')
+        if self.object.is_scheduled():
+            rv['auto_refresh'] = True
+            rv['auto_refresh_secs'] = 60
         return rv
 
 
@@ -381,7 +385,6 @@ class WcMonthView(DetailView):
         rv['cur_month'] = dom1
         rv['now'] = tday
         rv['all_days'] = allD
-        rv['latest_snap'] = lst
         rv['first_day'] = None if fst is None else fst.ts_create
         rv['last_day'] = None if lst is None else lst.ts_create
         rv['scheduled_on'] = schOn
