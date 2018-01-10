@@ -121,6 +121,7 @@ class Webcam(models.Model):
     slug = CharField(max_length=100, unique=True)
 
     url_name = 'webcam'
+    _sched = None
 
     def __unicode__(self):
         return '%s' % self.name
@@ -129,9 +130,11 @@ class Webcam(models.Model):
         return ''
 
     def get_schedule(self):
-        if self.schedule is None or len(self.schedule) == 0:
-            return None
-        return json.loads(self.schedule)
+        if self._sched is None:
+            if self.schedule is None or len(self.schedule) == 0:
+                return None
+            self._sched = json.loads(self.schedule)
+        return self._sched
 
     def is_scheduled(self):
         sch = self.get_schedule()

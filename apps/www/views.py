@@ -344,38 +344,29 @@ class WcMonthView(DetailView):
         fst = None
         lst = None
         ar_secs = 0
+        sched = None
         if self.object:
             if y == tday.year and m == tday.month and self.object.is_scheduled():
                 update_daily_stats(self.object.id, tday)
                 ar_secs = 60
             rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
-            if len(self.object.schedule) > 0:
-                sch = json.loads(self.object.schedule)
-                if sch:
-                    all = sch.get('all', None)
-                    if all:
-                        schOn = all.get('on', None)
-                        schOff = all.get('off', None)
             ndx = 0
             while curD <= lastD:
                 stats = SnapshotDailyStat.lookup(webcam=self.object, for_date=curD)
-                # if stats is None:
-                #     stats = update_daily_stats(self.object.id, curD)
                 allD.append({'index': ndx, 'day': curD, 'count': 0 if stats is None else stats.total_count, 'stats': stats})
                 curD += dlt
                 ndx += 1
-            if len(self.object.schedule) > 0:
-                sch = json.loads(self.object.schedule)
-                if sch:
-                    all = sch.get('all', None)
-                    if all:
-                        schOn = all.get('on', None)
-                        schOff = all.get('off', None)
+            sched = self.object.get_schedule()
+            if sched:
+                all = sched.get('all', None)
+                if all:
+                    schOn = all.get('on', None)
+                    schOff = all.get('off', None)
             fst = self.object.snapshot_set.earliest('ts_create')
             lst = self.object.snapshot_set.latest('ts_create')
 
         pm = firstD - dlt
-        if fst and pm >= fst:
+        if fst and pm >= fst.ts_create:
             rv['prev_month'] = pm
         nm = last_day_of_month(dom1) + dlt
         if nm <= tday:
