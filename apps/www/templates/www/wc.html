@@ -146,6 +146,8 @@
             <div class="col-sm-9">
         {% if latest_snap %}
                 <img src="{{ latest_snap.image_url }}" class="img img-responsive" title="{{ latest_snap.ts_create|date:"M j, Y h:iA" }}" alt="{{ latest_snap.ts_create|date:"M j, Y h:iA" }}"/>
+                <br/>
+                <span class="small">{{ latest_snap.ts_create|date:"M j, Y h:iA" }}</span>
         {% endif %}
             </div>
         </div>
