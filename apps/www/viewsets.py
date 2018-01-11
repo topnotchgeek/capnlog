@@ -73,10 +73,12 @@ class WebcamViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def snapshot(self, request, slug=None):
         wc = self.get_object()
+        logger.debug("post snapshot %s" % wc.slug)
         try:
             ss = wc.create_snap(json.loads(request.body))
             if ss:
-                self._make_latest(ss)
+                if wc.slug == 'boat-cam-1':
+                    self._make_latest(ss)
                 return JsonResponse(SnapshotSerializer(instance=ss, context={'request': request}).data, status=201)    #{"result": "success", "webcam_id": wc.slug, "img_id": ss.id}
         except ValueError:
             pass
