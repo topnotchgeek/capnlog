@@ -294,7 +294,7 @@ class WebcamView(DetailView):
             mths = self.object.snapshot_set.datetimes('ts_create', 'month', order='DESC')
             cnt = self.object.snapshot_set.count()
             rv['page_title'] = self.object.name
-            if len(self.object.schedule) > 0:
+            if self.object.schedule and len(self.object.schedule) > 0:
                 try:
                     sch = json.loads(self.object.schedule)
                     if sch:
