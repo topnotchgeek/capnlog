@@ -119,6 +119,21 @@ class WebcamViewSet(viewsets.ModelViewSet):
         except ValueError, e:
             return HttpResponseBadRequest(reason=e.message)
 
+    @detail_route(methods=['post'])
+    def upload(self, request, slug=None):
+        wc = self.get_object()
+        logger.debug("upload image %s" % wc.slug)
+        try:
+            f = request.FILES['data']
+            ss = wc.create_snap_from_image(f)
+            if ss:
+                if wc.slug == 'boat-cam-1':
+                    self._make_latest(ss)
+                return JsonResponse(SnapshotSerializer(instance=ss, context={'request': request}).data, status=201)    #{"result": "success", "webcam_id": wc.slug, "img_id": ss.id}
+        except ValueError:
+            pass
+        return HttpResponseBadRequest()
+
     def _make_latest(self, ss):
         sfnm = ss.img_name
         sdir = os.path.join(settings.WEBCAM_IMAGE_PATH, ss.img_path)

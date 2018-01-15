@@ -238,6 +238,26 @@ class Webcam(models.Model):
         ss.save()
         return ss
 
+    def create_snap_from_image(self, file):
+        if file is None:
+            return None
+        tz = timezone.get_current_timezone()
+        n = datetime.now(tz)
+        dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        path = os.path.join(dir, file.name)
+        logger.debug('writing %s' % path)
+        with open(path, 'wb') as dest:
+            for chunk in file.chunks():
+                dest.write(chunk)
+        ss = Snapshot()
+        ss.webcam = self
+        ss.img_name = file.name
+        ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
+        ss.save()
+        return ss
+
 
 class Snapshot(models.Model):
     webcam = ForeignKey(Webcam)
