@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import importlib
 import json
 import logging
 import os
@@ -301,6 +302,20 @@ class Snapshot(models.Model):
         now = timezone.make_aware(datetime.now(), tz)
         dlt = now - self.ts_create
         return dlt.seconds
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        rv = super(Snapshot, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        logger.debug("save {}".format(self))
+        fqc = 'apps.www.util.update_daily_stats'
+        (pkg, cnm) = fqc.rsplit('.', 1)
+        try:
+            mod = importlib.import_module(pkg)
+            uds = getattr(mod, cnm)
+            uds(wc_id=self.webcam.id)
+        except ImportError:
+            pass
+        return rv
 
 
 class SnapshotDailyStat(models.Model):

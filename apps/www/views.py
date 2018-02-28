@@ -346,7 +346,7 @@ class WcMonthView(DetailView):
         ar_secs = 0
         if self.object:
             if y == tday.year and m == tday.month and self.object.is_scheduled():
-                update_daily_stats(self.object.id, tday)
+                # update_daily_stats(self.object.id, tday)
                 ar_secs = 60
             rv['page_title'] = '%s - %s' % (self.object.name, dom1.strftime('%b %Y'))
             ndx = 0

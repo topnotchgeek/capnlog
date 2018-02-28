@@ -199,4 +199,3 @@ def update_daily_stats(wc_id=1, dte=None):
         ds.save()
     logger.debug('snapshot update complete: %s' % ds)
     return ds
-

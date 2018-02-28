@@ -19,7 +19,7 @@ from django.contrib import admin
 from apps.www.views import BlogView, VisitorsView, PhotosView, WeatherView, BlogDetailView, BlogEditView, \
     BlogCreateView, \
     wrapped_login, wrapped_logout, BoatCamView, DayInTheLifeView, AdilHourView, AdilHomeView, \
-    WebcamView, WcMonthView, WcDayView, AjaxChartView, HiLoView, HomeView
+    WebcamView, WcMonthView, WcDayView, AjaxChartView, HiLoView, HomeView, CrlsView
 from apps.www import urls as api_urls
 
 urlpatterns = [
@@ -51,4 +51,6 @@ urlpatterns = [
 
     url('^api/', include(api_urls)),
     # url(r'^oauth/', include('provider.oauth2.urls', namespace='oauth2')),
+    # url(r'^crls/(?P<crlname>[-\w]+)/$', CrlsView.as_view(), name='crls'),
+
 ]
