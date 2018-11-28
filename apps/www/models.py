@@ -231,6 +231,7 @@ class Webcam(models.Model):
         fout.write(img.decode("base64"))
         fout.close()
         ss = Snapshot.objects.create(webcam=self, img_name=fnm, img_path=dir[len(settings.WEBCAM_IMAGE_PATH)+1:], ts_create=n)
+        logger.debug('snapshot created: %s - %s' % (ss.img_name, ss.ts_create.strftime('%y-%m-%d')))
         # ss = Snapshot()
         # ss.webcam = self
         # ss.img_name = fnm
@@ -343,7 +344,10 @@ class SnapshotDailyStat(models.Model):
     def lookup(cls, webcam, for_date=None):
         if for_date is None:
             for_date = datetime.now()
-        set = SnapshotDailyStat.objects.filter(webcam=webcam).filter(for_date=for_date)
+        tz = timezone.get_current_timezone()
+        sd = timezone.make_aware(datetime(for_date.year, for_date.month, for_date.day, 0, 0, 0), tz)
+        ed = timezone.make_aware(datetime(for_date.year, for_date.month, for_date.day, 23, 59, 59), tz)
+        set = SnapshotDailyStat.objects.filter(webcam=webcam).filter(for_date__range=(sd,ed))
         if set.count() == 1:
             return set.all()[0]
         return None

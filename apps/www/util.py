@@ -170,7 +170,9 @@ def update_daily_stats(wc_id=1, dte=None):
     if dte is None:
         dte = datetime.now()
     tz = timezone.get_current_timezone()
-    for_date = timezone.make_aware(datetime(year=dte.year, month=dte.month, day=dte.day), tz)
+    if timezone.is_naive(dte):
+        dte = timezone.make_aware(dte, tz)
+    for_date = datetime(year=dte.year, month=dte.month, day=dte.day)
     logger.debug('lookup snapshot: %s %s' % (wc, for_date))
     ds = SnapshotDailyStat.lookup(webcam=wc, for_date=for_date)
     if ds is None:
