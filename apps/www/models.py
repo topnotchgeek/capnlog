@@ -350,6 +350,8 @@ class SnapshotDailyStat(models.Model):
         set = SnapshotDailyStat.objects.filter(webcam=webcam).filter(for_date__range=(sd,ed))
         if set.count() == 1:
             return set.all()[0]
+        else:
+            logger.debug('SnapshotDailyStat.lookup failed, found %d for %s' % (set.count(), for_date))
         return None
 
 
