@@ -221,7 +221,7 @@ class Webcam(models.Model):
             logger.debug('create_snap: bad data')
             return None
         tz = timezone.get_current_timezone()
-        n = datetime.now(tz)
+        n = timezone.make_aware(datetime.now(), tz)
         dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -230,20 +230,21 @@ class Webcam(models.Model):
         fout = open(path, "wb")
         fout.write(img.decode("base64"))
         fout.close()
-        ss = Snapshot()
-        ss.webcam = self
-        ss.img_name = fnm
-        ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
+        ss = Snapshot.objects.create(webcam=self, img_name=file.name, img_path=dir[len(settings.WEBCAM_IMAGE_PATH)+1:], ts_create=n)
+        # ss = Snapshot()
+        # ss.webcam = self
+        # ss.img_name = fnm
+        # ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
         if opts:
             ss.img_opts = json.dumps(opts)
-        ss.save()
+            ss.save()
         return ss
 
     def create_snap_from_image(self, file):
         if file is None:
             return None
         tz = timezone.get_current_timezone()
-        n = datetime.now(tz)
+        n = timezone.make_aware(datetime.now(), tz)
         dir = os.path.join(settings.WEBCAM_IMAGE_PATH, '%04d' % n.year, '%02d' % n.month, '%02d' % n.day)
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -252,11 +253,11 @@ class Webcam(models.Model):
         with open(path, 'wb') as dest:
             for chunk in file.chunks():
                 dest.write(chunk)
-        ss = Snapshot()
-        ss.webcam = self
-        ss.img_name = file.name
-        ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
-        ss.save()
+        ss = Snapshot.objects.create(webcam=self, img_name=file.name, img_path=dir[len(settings.WEBCAM_IMAGE_PATH)+1:], ts_create=n)
+        # ss.webcam = self
+        # ss.img_name = file.name
+        # ss.img_path = dir[len(settings.WEBCAM_IMAGE_PATH)+1:]
+        # ss.save()
         return ss
 
 
@@ -393,8 +394,8 @@ class WuAstronomy(models.Model):
 
         osr = '2015-01-01 %02d:%02d' % (other.sun_rise.hour, other.sun_rise.minute)
         oss = '2015-01-01 %02d:%02d' % (other.sun_set.hour, other.sun_set.minute)
-        sr = datetime.strptime(ssr, '%Y-%m-%d %H:%M')
-        ss = datetime.strptime(sss, '%Y-%m-%d %H:%M')
+        sr = datetime.strptime(osr, '%Y-%m-%d %H:%M')
+        ss = datetime.strptime(oss, '%Y-%m-%d %H:%M')
         odlt = ss - sr
         return sdlt.seconds - odlt.seconds
 
