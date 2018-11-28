@@ -230,7 +230,7 @@ class Webcam(models.Model):
         fout = open(path, "wb")
         fout.write(img.decode("base64"))
         fout.close()
-        ss = Snapshot.objects.create(webcam=self, img_name=file.name, img_path=dir[len(settings.WEBCAM_IMAGE_PATH)+1:], ts_create=n)
+        ss = Snapshot.objects.create(webcam=self, img_name=fnm, img_path=dir[len(settings.WEBCAM_IMAGE_PATH)+1:], ts_create=n)
         # ss = Snapshot()
         # ss.webcam = self
         # ss.img_name = fnm
