@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from datetime import datetime
 
+from pytz.exceptions import NonExistentTimeError
+
 from conf import settings
 
 logger = logging.getLogger(__name__)
@@ -183,14 +185,20 @@ class Webcam(models.Model):
 
     def snaps_for_day(self, dt):
         tz = timezone.get_current_timezone()
-        sd = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 0, 0, 0),tz)
-        ed = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 23, 59, 59),tz)
+        try:
+            sd = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 0, 0, 0),tz)
+            ed = timezone.make_aware(datetime(dt.year, dt.month, dt.day, 23, 59, 59),tz)
+        except NonExistentTimeError:
+            return None
         return self.snapshot_set.filter(ts_create__range=(sd,ed))
 
     def snaps_for_hour(self, y, m, d, hr):
         tz = timezone.get_current_timezone()
-        dfrom = timezone.make_aware(datetime(y, m, d, hr, 0),tz)
-        dto = timezone.make_aware(datetime(y, m, d, hr, 59, 59),tz)
+        try:
+            dfrom = timezone.make_aware(datetime(y, m, d, hr, 0),tz)
+            dto = timezone.make_aware(datetime(y, m, d, hr, 59, 59),tz)
+        except NonExistentTimeError:
+            return None
         return self.snapshot_set.filter(ts_create__range=(dfrom, dto)).order_by('ts_create')
 
     def snaps_for_fname(self, fnm):
